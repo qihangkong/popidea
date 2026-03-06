@@ -1,9 +1,9 @@
 use crate::errors::Result;
 use axum::{
-    extract::State,
+    extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
-    routing::{get, post},
+    routing::{delete, get, post, put},
     Json, Router,
 };
 use serde_json::json;
@@ -11,7 +11,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 use crate::lib::{
-    db::Database,
+    db::{crud, Database},
     storage::StorageService,
     task::TaskQueue,
 };
@@ -52,6 +52,9 @@ impl HttpServer {
         Router::new()
             .route("/health", get(health_check))
             .route("/api/projects", get(list_projects).post(create_project))
+            .route("/api/projects/:id", get(get_project).put(update_project).delete(delete_project))
+            .route("/api/projects/:id/episodes", get(list_episodes).post(create_episode))
+            .route("/api/episodes/:id", get(get_episode).put(update_episode).delete(delete_episode))
             .with_state(AppState {
                 db: self.db,
                 storage: self.storage,
@@ -76,16 +79,9 @@ async fn health_check() -> impl IntoResponse {
 
 async fn list_projects(State(state): State<AppState>) -> impl IntoResponse {
     let db = state.db.lock().await;
-    let projects = sqlx::query_as::<_, (String,)>(
-        "SELECT id FROM projects"
-    )
-    .fetch_all(db.pool())
-    .await;
-
-    match projects {
-        Ok(rows) => {
-            let project_ids: Vec<String> = rows.into_iter().map(|r| r.0).collect();
-            Json(json!({ "projects": project_ids }))
+    match crud::ProjectRepository::list(db.pool()).await {
+        Ok(projects) => {
+            (StatusCode::OK, Json(json!({ "projects": projects })))
         }
         Err(e) => {
             (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({ "error": e.to_string() })))
@@ -97,28 +93,136 @@ async fn create_project(
     State(state): State<AppState>,
     Json(payload): create_project::Payload,
 ) -> impl IntoResponse {
-    let id = uuid::Uuid::new_v4().to_string();
-    let now = chrono::Utc::now().timestamp();
-
     let db = state.db.lock().await;
-    let result = sqlx::query(
-        "INSERT INTO projects (id, name, description, created_at, updated_at, settings) VALUES (?1, ?2, ?3, ?4, ?5, ?6)"
-    )
-    .bind(&id)
-    .bind(&payload.name)
-    .bind(&payload.description)
-    .bind(now)
-    .bind(now)
-    .bind(serde_json::to_string(&payload.settings).unwrap_or_default())
-    .execute(db.pool())
-    .await;
-
-    match result {
-        Ok(_) => {
-            (StatusCode::CREATED, Json(json!({ "id": id })))
+    match crud::ProjectRepository::create(db.pool(), payload.name, payload.description).await {
+        Ok(project) => {
+            (StatusCode::CREATED, Json(json!({ "project": project })))
         }
         Err(e) => {
             (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({ "error": e.to_string() })))
+        }
+    }
+}
+
+async fn get_project(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let db = state.db.lock().await;
+    match crud::ProjectRepository::get_by_id(db.pool(), &id).await {
+        Ok(project) => {
+            (StatusCode::OK, Json(json!({ "project": project })))
+        }
+        Err(e) => {
+            (StatusCode::NOT_FOUND, Json(json!({ "error": e.to_string() })))
+        }
+    }
+}
+
+async fn update_project(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+    Json(payload): update_project::Payload,
+) -> impl IntoResponse {
+    let db = state.db.lock().await;
+    match crud::ProjectRepository::update(db.pool(), &id, payload.name, payload.description).await {
+        Ok(project) => {
+            (StatusCode::OK, Json(json!({ "project": project })))
+        }
+        Err(e) => {
+            (StatusCode::NOT_FOUND, Json(json!({ "error": e.to_string() })))
+        }
+    }
+}
+
+async fn delete_project(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let db = state.db.lock().await;
+    match crud::ProjectRepository::delete(db.pool(), &id).await {
+        Ok(_) => {
+            (StatusCode::NO_CONTENT, Json(json!({})))
+        }
+        Err(e) => {
+            (StatusCode::NOT_FOUND, Json(json!({ "error": e.to_string() })))
+        }
+    }
+}
+
+async fn list_episodes(
+    State(state): State<AppState>,
+    Path(project_id): Path<String>,
+) -> impl IntoResponse {
+    let db = state.db.lock().await;
+    match crud::EpisodeRepository::list_by_project(db.pool(), &project_id).await {
+        Ok(episodes) => {
+            (StatusCode::OK, Json(json!({ "episodes": episodes })))
+        }
+        Err(e) => {
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({ "error": e.to_string() })))
+        }
+    }
+}
+
+async fn create_episode(
+    State(state): State<AppState>,
+    Path(project_id): Path<String>,
+    Json(payload): create_episode::Payload,
+) -> impl IntoResponse {
+    let db = state.db.lock().await;
+    match crud::EpisodeRepository::create(db.pool(), project_id, payload.name, payload.content).await {
+        Ok(episode) => {
+            (StatusCode::CREATED, Json(json!({ "episode": episode })))
+        }
+        Err(e) => {
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({ "error": e.to_string() })))
+        }
+    }
+}
+
+async fn get_episode(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let db = state.db.lock().await;
+    match crud::EpisodeRepository::get_by_id(db.pool(), &id).await {
+        Ok(episode) => {
+            (StatusCode::OK, Json(json!({ "episode": episode })))
+        }
+        Err(e) => {
+            (StatusCode::NOT_FOUND, Json(json!({ "error": e.to_string() })))
+        }
+    }
+}
+
+async fn update_episode(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+    Json(payload): update_episode::Payload,
+) -> impl IntoResponse {
+    let db = state.db.lock().await;
+    match crud::EpisodeRepository::update(db.pool(), &id, payload.name, payload.content).await {
+        Ok(episode) => {
+            (StatusCode::OK, Json(json!({ "episode": episode })))
+        }
+        Err(e) => {
+            (StatusCode::NOT_FOUND, Json(json!({ "error": e.to_string() })))
+        }
+    }
+}
+
+async fn delete_episode(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let db = state.db.lock().await;
+    match crud::EpisodeRepository::delete(db.pool(), &id).await {
+        Ok(_) => {
+            (StatusCode::NO_CONTENT, Json(json!({})))
+        }
+        Err(e) => {
+            (StatusCode::NOT_FOUND, Json(json!({ "error": e.to_string() })))
         }
     }
 }
@@ -131,5 +235,35 @@ mod create_project {
         pub name: String,
         pub description: Option<String>,
         pub settings: Option<serde_json::Value>,
+    }
+}
+
+mod update_project {
+    use serde::Deserialize;
+
+    #[derive(Deserialize)]
+    pub struct Payload {
+        pub name: Option<String>,
+        pub description: Option<String>,
+    }
+}
+
+mod create_episode {
+    use serde::Deserialize;
+
+    #[derive(Deserialize)]
+    pub struct Payload {
+        pub name: String,
+        pub content: Option<String>,
+    }
+}
+
+mod update_episode {
+    use serde::Deserialize;
+
+    #[derive(Deserialize)]
+    pub struct Payload {
+        pub name: Option<String>,
+        pub content: Option<String>,
     }
 }
