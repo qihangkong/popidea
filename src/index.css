@@ -35,6 +35,12 @@ h1 {
   line-height: 1.1;
 }
 
+h2 {
+  font-size: 2em;
+  line-height: 1.2;
+  margin: 2rem 0 1rem;
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -94,5 +100,61 @@ input {
   input {
     background-color: #f9f9f9;
     color: #213547;
+  }
+}
+
+.project-form,
+.episode-form {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.project-form input,
+.episode-form input {
+  flex: 1;
+  max-width: 400px;
+}
+
+.projects-list,
+.episodes-list {
+  text-align: left;
+  margin-top: 2rem;
+}
+
+.projects-list ul,
+.episodes-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.project-item,
+.episode-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.project-item button,
+.episode-item button {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+
+.project-item button:hover,
+.episode-item button:hover {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+}
+
+@media (prefers-color-scheme: light) {
+  .project-item,
+  .episode-item {
+    background-color: rgba(0, 0, 0, 0.05);
   }
 }

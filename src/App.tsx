@@ -1,30 +1,15 @@
-import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { HomePage, ProjectDetail } from './pages'
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState('')
-  const [name, setName] = useState('')
-
-  async function greet() {
-    setGreetMsg(await window.__TAURI_INVOKE__('greet', { name }))
-  }
-
   return (
-    <div className="container">
-      <h1>Welcome to PopIdea!</h1>
-
-      <div className="row">
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="button" onClick={() => greet()}>
-          Greet
-        </button>
-      </div>
-
-      <p>{greetMsg}</p>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/project/:projectId" element={<ProjectDetail />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   )
 }
 
