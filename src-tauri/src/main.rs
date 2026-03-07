@@ -56,6 +56,20 @@ pub fn run() {
             commands::create_task,
             commands::get_tasks,
             commands::get_task,
+            commands::get_storyboards,
+            commands::create_storyboard,
+            commands::get_panels,
+            commands::create_panel,
+            commands::update_panel,
+            commands::delete_panel,
+            commands::get_global_characters,
+            commands::create_global_character,
+            commands::update_global_character,
+            commands::delete_global_character,
+            commands::get_global_locations,
+            commands::create_global_location,
+            commands::update_global_location,
+            commands::delete_global_location,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
