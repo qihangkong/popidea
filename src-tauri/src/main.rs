@@ -13,7 +13,7 @@ use lib::{
     storage::StorageService,
     task::TaskQueue,
     api::HttpServer,
-    ipc::IpcHandler,
+    ipc::{IpcHandler, list_projects, create_project, get_project, update_project, delete_project, list_episodes, create_episode, get_episode, update_episode, delete_episode},
 };
 
 #[tokio::main]
@@ -57,7 +57,7 @@ async fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .setup(|app app_handle| {
+        .setup(|app_handle| {
             let ipc_handler = IpcHandler::new(
                 db.clone(),
                 storage.clone(),
@@ -66,6 +66,18 @@ async fn main() {
             ipc_handler.register(app_handle);
             Ok(())
         })
+        .invoke_handler(tauri::generate_handler![
+            list_projects,
+            create_project,
+            get_project,
+            update_project,
+            delete_project,
+            list_episodes,
+            create_episode,
+            get_episode,
+            update_episode,
+            delete_episode,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
