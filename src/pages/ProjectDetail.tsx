@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { EpisodesApi } from '../api'
 import type { Episode } from '../types'
 
 export function ProjectDetail() {
   const { projectId } = useParams<{ projectId: string }>()
-  const navigate = useNavigate()
   const [episodes, setEpisodes] = useState<Episode[]>([])
   const [loading, setLoading] = useState(true)
   const [newEpisodeName, setNewEpisodeName] = useState('')

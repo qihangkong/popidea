@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { ProjectsApi } from '../api'
 import type { Project } from '../types'
 
@@ -46,7 +47,12 @@ export function HomePage() {
 
   return (
     <div className="container">
-      <h1>PopIdea</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1>PopIdea</h1>
+        <Link to="/tasks" className="text-blue-500 hover:text-blue-700">
+          Task Monitor
+        </Link>
+      </div>
       <p>Welcome to PopIdea - Your creative content creation platform</p>
 
       <div className="project-form">

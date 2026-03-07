@@ -3,7 +3,10 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use crate::db::crud;
 use crate::db::models::*;
+use crate::task::queue::{TaskQueue, QueuedTask, TaskStatus};
 use crate::errors::{Result, AppError};
+use uuid::Uuid;
+use chrono::Utc;
 
 #[tauri::command]
 pub async fn get_projects(
@@ -198,4 +201,52 @@ pub async fn delete_episode(
     } else {
         Err("Database pool not initialized".to_string())
     }
+}
+
+#[tauri::command]
+pub async fn create_task(
+    task_queue: State<Arc<TaskQueue>>,
+    task_type: String,
+    project: String,
+    episode_id: Option<String>,
+    target_type: Option<String>,
+    target_id: Option<String>,
+    payload: Option<String>,
+) -> Result<QueuedTask, String> {
+    let task = QueuedTask {
+        id: Uuid::new_v4().to_string(),
+        task_type,
+        status: TaskStatus::Queued,
+        project,
+        episode_id,
+        target_type,
+        target_id,
+        payload,
+        result: None,
+        progress: 0,
+        error_message: None,
+        created_at: Utc::now().timestamp(),
+        started_at: None,
+        finished_at: None,
+    };
+
+    task_queue.enqueue(task.clone()).await.map_err(|e| e.to_string())?;
+    Ok(task)
+}
+
+#[tauri::command]
+pub async fn get_tasks(
+    task_queue: State<Arc<TaskQueue>>,
+) -> Result<Vec<QueuedTask>, String> {
+    let tasks = task_queue.get_all_tasks().await;
+    Ok(tasks)
+}
+
+#[tauri::command]
+pub async fn get_task(
+    task_queue: State<Arc<TaskQueue>>,
+    task_id: String,
+) -> Result<Option<QueuedTask>, String> {
+    let task = task_queue.get_task(&task_id).await;
+    Ok(task)
 }

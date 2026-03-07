@@ -1,14 +1,19 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod lib;
+mod
+lib;
 
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use lib::commands;
 use lib::db;
+use lib::task;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let task_queue = Arc::new(task::TaskQueue::new());
+    let task_queue_clone = task_queue.clone();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
@@ -21,6 +26,17 @@ pub fn run() {
                 let db_pool = Arc::new(RwLock::new(Some(pool)));
                 
                 let _ = handle.manage(db_pool);
+            });
+
+            let _ = app.manage(task_queue_clone);
+
+            let worker = task::TaskWorker::new(task_queue);
+            let worker_handle = app.handle();
+            
+            tauri::async_runtime::spawn(async move {
+                if let Err(e) = worker.start().await {
+                    eprintln!("Worker error: {}", e);
+                }
             });
             
             Ok(())
@@ -37,6 +53,9 @@ pub fn run() {
             commands::get_episode,
             commands::update_episode,
             commands::delete_episode,
+            commands::create_task,
+            commands::get_tasks,
+            commands::get_task,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
