@@ -2,6 +2,7 @@ use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
 use uuid::Uuid;
 use chrono::Utc;
+use serde_json::Value;
 use crate::db::models::Task;
 use crate::errors::Result;
 
@@ -33,7 +34,7 @@ pub struct QueuedTask {
     pub episode_id: Option<String>,
     pub target_type: Option<String>,
     pub target_id: Option<String>,
-    pub payload: Option<String>,
+    pub payload: Option<Value>,
     pub result: Option<String>,
     pub progress: i32,
     pub error_message: Option<String>,

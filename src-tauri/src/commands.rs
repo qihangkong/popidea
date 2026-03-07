@@ -1,6 +1,7 @@
 use tauri::State;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use serde_json::Value;
 use crate::db::crud;
 use crate::db::models::*;
 use crate::task::queue::{TaskQueue, QueuedTask, TaskStatus};
@@ -211,7 +212,7 @@ pub async fn create_task(
     episode_id: Option<String>,
     target_type: Option<String>,
     target_id: Option<String>,
-    payload: Option<String>,
+    payload: Option<Value>,
 ) -> Result<QueuedTask, String> {
     let task = QueuedTask {
         id: Uuid::new_v4().to_string(),
