@@ -129,6 +129,25 @@ pub async fn create_episode(
 }
 
 #[tauri::command]
+pub async fn import_episode(
+    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    project_id: String,
+    name: String,
+    content: String,
+) -> Result<Episode, String> {
+    let pool = db_pool.read().await;
+    
+    if let Some(pool) = pool.as_ref() {
+        match crud::create_episode(pool, project_id, name, Some(content)).await {
+            Ok(episode) => Ok(episode),
+            Err(e) => Err(e.to_string()),
+        }
+    } else {
+        Err("Database pool not initialized".to_string())
+    }
+}
+
+#[tauri::command]
 pub async fn get_episode(
     db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     id: String,

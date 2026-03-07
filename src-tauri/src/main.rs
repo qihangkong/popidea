@@ -33,6 +33,7 @@ pub fn run() {
             commands::delete_project,
             commands::get_episodes,
             commands::create_episode,
+            commands::import_episode,
             commands::get_episode,
             commands::update_episode,
             commands::delete_episode,

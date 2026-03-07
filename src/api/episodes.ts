@@ -14,6 +14,14 @@ export class EpisodesApi {
     return ApiClient.invoke<Episode>('create_episode', { projectId, name, content })
   }
 
+  static async importEpisode(
+    projectId: string,
+    name: string,
+    content: string
+  ): Promise<Episode> {
+    return ApiClient.invoke<Episode>('import_episode', { projectId, name, content })
+  }
+
   static async getEpisode(id: string): Promise<Episode | null> {
     return ApiClient.invoke<Episode | null>('get_episode', { id })
   }
