@@ -1,8 +1,8 @@
 {
-  "$schema": "https://schema.tauri.app/config/2.0.0",
-  "productName": "NoIdea",
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "PopIdea",
   "version": "0.1.0",
-  "identifier": "com.noidea.app",
+  "identifier": "com.popidea.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:5173",
@@ -12,13 +12,11 @@
   "app": {
     "windows": [
       {
-        "title": "NoIdea AI Video Studio",
+        "title": "PopIdea",
         "width": 1280,
         "height": 800,
         "resizable": true,
-        "fullscreen": false,
-        "minWidth": 1024,
-        "minHeight": 768
+        "fullscreen": false
       }
     ],
     "security": {
