@@ -5,3 +5,5 @@ pub mod storage;
 pub mod api;
 pub mod task;
 pub mod ai;
+pub mod asset_commands;
+pub mod ai_text_commands;

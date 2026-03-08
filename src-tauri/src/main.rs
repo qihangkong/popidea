@@ -1,11 +1,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod
-lib;
+mod lib;
 
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use lib::commands;
+use lib::asset_commands;
+use lib::ai_text_commands;
 use lib::db;
 use lib::task;
 
@@ -18,13 +19,13 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             let handle = app.handle();
-            
+
             tauri::async_runtime::spawn(async move {
                 let pool = db::create_pool(None).await.expect("Failed to create database pool");
                 db::init_database(&pool).await.expect("Failed to initialize database");
-                
+
                 let db_pool = Arc::new(RwLock::new(Some(pool)));
-                
+
                 let _ = handle.manage(db_pool);
             });
 
@@ -32,13 +33,13 @@ pub fn run() {
 
             let worker = task::TaskWorker::new(task_queue);
             let worker_handle = app.handle();
-            
+
             tauri::async_runtime::spawn(async move {
                 if let Err(e) = worker.start().await {
                     eprintln!("Worker error: {}", e);
                 }
             });
-            
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -70,6 +71,30 @@ pub fn run() {
             commands::create_global_location,
             commands::update_global_location,
             commands::delete_global_location,
+            // Asset commands
+            asset_commands::get_character_appearances,
+            asset_commands::create_character_appearance,
+            asset_commands::update_character_appearance,
+            asset_commands::delete_character_appearance,
+            asset_commands::select_character_appearance,
+            asset_commands::get_asset_folders,
+            asset_commands::create_asset_folder,
+            asset_commands::update_asset_folder,
+            asset_commands::delete_asset_folder,
+            asset_commands::get_assets,
+            asset_commands::create_asset,
+            asset_commands::update_asset,
+            asset_commands::delete_asset,
+            // AI Text commands
+            ai_text_commands::analyze_novel,
+            ai_text_commands::analyze_global,
+            ai_text_commands::convert_story_to_script,
+            ai_text_commands::convert_script_to_storyboard,
+            ai_text_commands::ai_design_character,
+            ai_text_commands::ai_design_location,
+            ai_text_commands::ai_modify_appearance,
+            ai_text_commands::ai_modify_location,
+            ai_text_commands::ai_modify_shot_prompt,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

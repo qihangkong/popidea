@@ -146,5 +146,62 @@ pub async fn init_database(pool: &SqlitePool) -> Result<()> {
     .execute(pool)
     .await?;
 
+    // 角色外貌表
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS character_appearances (
+            id TEXT PRIMARY KEY,
+            character_id TEXT NOT NULL,
+            description TEXT,
+            image_url TEXT,
+            is_selected INTEGER DEFAULT 0,
+            created_at INTEGER NOT NULL,
+            FOREIGN KEY (character_id) REFERENCES global_characters(id)
+        )
+        "#
+    )
+    .execute(pool)
+    .await?;
+
+    // 资产文件夹表
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS asset_folders (
+            id TEXT PRIMARY KEY,
+            project_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            parent_id TEXT,
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL,
+            FOREIGN KEY (project_id) REFERENCES projects(id)
+        )
+        "#
+    )
+    .execute(pool)
+    .await?;
+
+    // 资产表
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS assets (
+            id TEXT PRIMARY KEY,
+            project_id TEXT NOT NULL,
+            folder_id TEXT,
+            asset_type TEXT NOT NULL,
+            name TEXT,
+            description TEXT,
+            image_url TEXT,
+            metadata TEXT,
+            labels TEXT,
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL,
+            FOREIGN KEY (project_id) REFERENCES projects(id),
+            FOREIGN KEY (folder_id) REFERENCES asset_folders(id)
+        )
+        "#
+    )
+    .execute(pool)
+    .await?;
+
     Ok(())
 }

@@ -88,3 +88,38 @@ pub struct Task {
     pub started_at: Option<i64>,
     pub finished_at: Option<i64>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CharacterAppearance {
+    pub id: String,
+    pub character_id: String,
+    pub description: Option<String>,
+    pub image_url: Option<String>,
+    pub is_selected: bool,
+    pub created_at: i64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AssetFolder {
+    pub id: String,
+    pub project_id: String,
+    pub name: String,
+    pub parent_id: Option<String>,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Asset {
+    pub id: String,
+    pub project_id: String,
+    pub folder_id: Option<String>,
+    pub asset_type: String,
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub image_url: Option<String>,
+    pub metadata: Option<String>,
+    pub labels: Option<String>,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
