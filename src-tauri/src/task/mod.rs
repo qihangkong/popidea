@@ -1,6 +1,7 @@
 pub mod queue;
-pub mod worker;
 pub mod handlers;
+pub mod worker;
 
-pub use queue::*;
-pub use worker::*;
+pub use queue::{TaskQueue, QueuedTask, TaskStatus};
+pub use handlers::*;
+pub use worker::TaskWorker;

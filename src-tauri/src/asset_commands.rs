@@ -10,9 +10,9 @@ use crate::errors::{Result, AppError};
 
 #[tauri::command]
 pub async fn get_character_appearances(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     character_id: String,
-) -> Result<Vec<CharacterAppearance>, String> {
+) -> std::result::Result<Vec<CharacterAppearance>, String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {
@@ -27,11 +27,11 @@ pub async fn get_character_appearances(
 
 #[tauri::command]
 pub async fn create_character_appearance(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     character_id: String,
     description: Option<String>,
     image_url: Option<String>,
-) -> Result<CharacterAppearance, String> {
+) -> std::result::Result<CharacterAppearance, String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {
@@ -46,12 +46,12 @@ pub async fn create_character_appearance(
 
 #[tauri::command]
 pub async fn update_character_appearance(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     id: String,
     description: Option<String>,
     image_url: Option<String>,
     is_selected: Option<bool>,
-) -> Result<Option<CharacterAppearance>, String> {
+) -> std::result::Result<Option<CharacterAppearance>, String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {
@@ -66,9 +66,9 @@ pub async fn update_character_appearance(
 
 #[tauri::command]
 pub async fn delete_character_appearance(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     id: String,
-) -> Result<bool, String> {
+) -> std::result::Result<bool, String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {
@@ -83,10 +83,10 @@ pub async fn delete_character_appearance(
 
 #[tauri::command]
 pub async fn select_character_appearance(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     character_id: String,
     appearance_id: String,
-) -> Result<(), String> {
+) -> std::result::Result<(), String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {
@@ -103,10 +103,10 @@ pub async fn select_character_appearance(
 
 #[tauri::command]
 pub async fn get_asset_folders(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     project_id: String,
     parent_id: Option<String>,
-) -> Result<Vec<AssetFolder>, String> {
+) -> std::result::Result<Vec<AssetFolder>, String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {
@@ -121,11 +121,11 @@ pub async fn get_asset_folders(
 
 #[tauri::command]
 pub async fn create_asset_folder(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     project_id: String,
     name: String,
     parent_id: Option<String>,
-) -> Result<AssetFolder, String> {
+) -> std::result::Result<AssetFolder, String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {
@@ -140,11 +140,11 @@ pub async fn create_asset_folder(
 
 #[tauri::command]
 pub async fn update_asset_folder(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     id: String,
     name: Option<String>,
     parent_id: Option<String>,
-) -> Result<Option<AssetFolder>, String> {
+) -> std::result::Result<Option<AssetFolder>, String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {
@@ -159,9 +159,9 @@ pub async fn update_asset_folder(
 
 #[tauri::command]
 pub async fn delete_asset_folder(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     id: String,
-) -> Result<bool, String> {
+) -> std::result::Result<bool, String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {
@@ -178,11 +178,11 @@ pub async fn delete_asset_folder(
 
 #[tauri::command]
 pub async fn get_assets(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     project_id: String,
     folder_id: Option<String>,
     asset_type: Option<String>,
-) -> Result<Vec<Asset>, String> {
+) -> std::result::Result<Vec<Asset>, String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {
@@ -197,7 +197,7 @@ pub async fn get_assets(
 
 #[tauri::command]
 pub async fn create_asset(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     project_id: String,
     asset_type: String,
     folder_id: Option<String>,
@@ -206,7 +206,7 @@ pub async fn create_asset(
     image_url: Option<String>,
     metadata: Option<String>,
     labels: Option<String>,
-) -> Result<Asset, String> {
+) -> std::result::Result<Asset, String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {
@@ -221,14 +221,14 @@ pub async fn create_asset(
 
 #[tauri::command]
 pub async fn update_asset(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     id: String,
     name: Option<String>,
     description: Option<String>,
     image_url: Option<String>,
     metadata: Option<String>,
     labels: Option<String>,
-) -> Result<Option<Asset>, String> {
+) -> std::result::Result<Option<Asset>, String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {
@@ -243,9 +243,9 @@ pub async fn update_asset(
 
 #[tauri::command]
 pub async fn delete_asset(
-    db_pool: State<Arc<RwLock<Option<sqlx::SqlitePool>>>>,
+    db_pool: State<'_, Arc<RwLock<Option<sqlx::SqlitePool>>>>,
     id: String,
-) -> Result<bool, String> {
+) -> std::result::Result<bool, String> {
     let pool = db_pool.read().await;
 
     if let Some(pool) = pool.as_ref() {

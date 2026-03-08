@@ -4,16 +4,21 @@ use crate::errors::Result;
 
 pub async fn create_pool(database_path: Option<PathBuf>) -> Result<SqlitePool> {
     let path = database_path.unwrap_or_else(|| {
-        let mut data_dir = tauri::api::path::app_data_dir(&tauri::Config::default())
-            .expect("Failed to get app data directory");
-        data_dir.push("popidea.db");
-        data_dir
+        std::env::var("POPIdea_DB_PATH")
+            .ok()
+            .and_then(|p| PathBuf::from(p).canonicalize().ok())
+            .unwrap_or_else(|| {
+                let mut data_dir = std::env::current_dir()
+                    .expect("Failed to get current directory");
+                data_dir.push("popidea.db");
+                data_dir
+            })
     });
 
     let connection_string = format!("sqlite:{}", path.to_string_lossy());
-    
+
     let pool = SqlitePool::connect(&connection_string).await?;
-    
+
     Ok(pool)
 }
 

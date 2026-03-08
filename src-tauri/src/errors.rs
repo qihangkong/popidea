@@ -1,30 +1,46 @@
-use thiserror::Error;
+use std::fmt;
 
-#[derive(Error, Debug)]
+pub type Result<T> = std::result::Result<T, AppError>;
+
+#[derive(Debug, Clone)]
 pub enum AppError {
-    #[error("Database error: {0}")]
-    Database(#[from] sqlx::Error),
-    
-    #[error("IO error: {0}")]
-    Io(#[from] std::io::Error),
-    
-    #[error("Serialization error: {0}")]
-    Serialization(#[from] serde_json::Error),
-    
-    #[error("HTTP error: {0}")]
-    Http(#[from] reqwest::Error),
-    
-    #[error("Custom error: {0}")]
     Custom(String),
+    Database(String),
+    Io(String),
+    Network(String),
+    Parse(String),
+    Validation(String),
 }
 
-impl serde::Serialize for AppError {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::ser::Serializer,
-    {
-        serializer.serialize_str(self.to_string().as_ref())
+impl fmt::Display for AppError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AppError::Custom(msg) => write!(f, "{}", msg),
+            AppError::Database(msg) => write!(f, "Database error: {}", msg),
+            AppError::Io(msg) => write!(f, "IO error: {}", msg),
+            AppError::Network(msg) => write!(f, "Network error: {}", msg),
+            AppError::Parse(msg) => write!(f, "Parse error: {}", msg),
+            AppError::Validation(msg) => write!(f, "Validation error: {}", msg),
+        }
     }
 }
 
-pub type Result<T> = std::result::Result<T, AppError>;
+impl std::error::Error for AppError {}
+
+impl From<sqlx::Error> for AppError {
+    fn from(err: sqlx::Error) -> Self {
+        AppError::Database(err.to_string())
+    }
+}
+
+impl From<std::io::Error> for AppError {
+    fn from(err: std::io::Error) -> Self {
+        AppError::Io(err.to_string())
+    }
+}
+
+impl From<serde_json::Error> for AppError {
+    fn from(err: serde_json::Error) -> Self {
+        AppError::Parse(err.to_string())
+    }
+}

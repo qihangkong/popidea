@@ -1,24 +1,22 @@
 use tauri::State;
 use std::sync::Arc;
-use tokio::sync::RwLock;
-use serde_json::Value;
-use crate::task::queue::{TaskQueue, QueuedTask, TaskStatus};
-use crate::errors::{Result, AppError};
 use uuid::Uuid;
 use chrono::Utc;
+use crate::task::queue::{TaskQueue, QueuedTask, TaskStatus};
+use crate::errors::AppError;
 
 // ==================== Novel Analysis ====================
 
 #[tauri::command]
 pub async fn analyze_novel(
-    task_queue: State<Arc<TaskQueue>>,
+    task_queue: State<'_, Arc<TaskQueue>>,
     project_id: String,
     episode_id: Option<String>,
     content: String,
     provider: Option<String>,
     api_key: Option<String>,
     model: Option<String>,
-) -> Result<QueuedTask, String> {
+) -> std::result::Result<QueuedTask, String> {
     let task = QueuedTask {
         id: Uuid::new_v4().to_string(),
         task_type: "novel_analysis".to_string(),
@@ -49,14 +47,14 @@ pub async fn analyze_novel(
 
 #[tauri::command]
 pub async fn analyze_global(
-    task_queue: State<Arc<TaskQueue>>,
+    task_queue: State<'_, Arc<TaskQueue>>,
     project_id: String,
     episode_id: Option<String>,
     content: String,
     provider: Option<String>,
     api_key: Option<String>,
     model: Option<String>,
-) -> Result<QueuedTask, String> {
+) -> std::result::Result<QueuedTask, String> {
     let task = QueuedTask {
         id: Uuid::new_v4().to_string(),
         task_type: "global_analysis".to_string(),
@@ -87,14 +85,14 @@ pub async fn analyze_global(
 
 #[tauri::command]
 pub async fn convert_story_to_script(
-    task_queue: State<Arc<TaskQueue>>,
+    task_queue: State<'_, Arc<TaskQueue>>,
     project_id: String,
     episode_id: Option<String>,
     content: String,
     provider: Option<String>,
     api_key: Option<String>,
     model: Option<String>,
-) -> Result<QueuedTask, String> {
+) -> std::result::Result<QueuedTask, String> {
     let task = QueuedTask {
         id: Uuid::new_v4().to_string(),
         task_type: "story_to_script".to_string(),
@@ -125,14 +123,14 @@ pub async fn convert_story_to_script(
 
 #[tauri::command]
 pub async fn convert_script_to_storyboard(
-    task_queue: State<Arc<TaskQueue>>,
+    task_queue: State<'_, Arc<TaskQueue>>,
     project_id: String,
     episode_id: Option<String>,
     content: String,
     provider: Option<String>,
     api_key: Option<String>,
     model: Option<String>,
-) -> Result<QueuedTask, String> {
+) -> std::result::Result<QueuedTask, String> {
     let task = QueuedTask {
         id: Uuid::new_v4().to_string(),
         task_type: "script_to_storyboard".to_string(),
@@ -163,13 +161,13 @@ pub async fn convert_script_to_storyboard(
 
 #[tauri::command]
 pub async fn ai_design_character(
-    task_queue: State<Arc<TaskQueue>>,
+    task_queue: State<'_, Arc<TaskQueue>>,
     project_id: String,
     user_instruction: String,
     provider: Option<String>,
     api_key: Option<String>,
     model: Option<String>,
-) -> Result<QueuedTask, String> {
+) -> std::result::Result<QueuedTask, String> {
     let task = QueuedTask {
         id: Uuid::new_v4().to_string(),
         task_type: "ai_design_character".to_string(),
@@ -198,13 +196,13 @@ pub async fn ai_design_character(
 
 #[tauri::command]
 pub async fn ai_design_location(
-    task_queue: State<Arc<TaskQueue>>,
+    task_queue: State<'_, Arc<TaskQueue>>,
     project_id: String,
     user_instruction: String,
     provider: Option<String>,
     api_key: Option<String>,
     model: Option<String>,
-) -> Result<QueuedTask, String> {
+) -> std::result::Result<QueuedTask, String> {
     let task = QueuedTask {
         id: Uuid::new_v4().to_string(),
         task_type: "ai_design_location".to_string(),
@@ -235,7 +233,7 @@ pub async fn ai_design_location(
 
 #[tauri::command]
 pub async fn ai_modify_appearance(
-    task_queue: State<Arc<TaskQueue>>,
+    task_queue: State<'_, Arc<TaskQueue>>,
     project_id: String,
     character_id: String,
     current_description: String,
@@ -243,7 +241,7 @@ pub async fn ai_modify_appearance(
     provider: Option<String>,
     api_key: Option<String>,
     model: Option<String>,
-) -> Result<QueuedTask, String> {
+) -> std::result::Result<QueuedTask, String> {
     let task = QueuedTask {
         id: Uuid::new_v4().to_string(),
         task_type: "ai_modify_appearance".to_string(),
@@ -273,7 +271,7 @@ pub async fn ai_modify_appearance(
 
 #[tauri::command]
 pub async fn ai_modify_location(
-    task_queue: State<Arc<TaskQueue>>,
+    task_queue: State<'_, Arc<TaskQueue>>,
     project_id: String,
     location_id: String,
     current_description: String,
@@ -281,7 +279,7 @@ pub async fn ai_modify_location(
     provider: Option<String>,
     api_key: Option<String>,
     model: Option<String>,
-) -> Result<QueuedTask, String> {
+) -> std::result::Result<QueuedTask, String> {
     let task = QueuedTask {
         id: Uuid::new_v4().to_string(),
         task_type: "ai_modify_location".to_string(),
@@ -313,7 +311,7 @@ pub async fn ai_modify_location(
 
 #[tauri::command]
 pub async fn ai_modify_shot_prompt(
-    task_queue: State<Arc<TaskQueue>>,
+    task_queue: State<'_, Arc<TaskQueue>>,
     project_id: String,
     panel_id: String,
     current_prompt: String,
@@ -321,7 +319,7 @@ pub async fn ai_modify_shot_prompt(
     provider: Option<String>,
     api_key: Option<String>,
     model: Option<String>,
-) -> Result<QueuedTask, String> {
+) -> std::result::Result<QueuedTask, String> {
     let task = QueuedTask {
         id: Uuid::new_v4().to_string(),
         task_type: "ai_modify_shot_prompt".to_string(),

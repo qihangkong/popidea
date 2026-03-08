@@ -44,16 +44,16 @@ impl HttpServer {
             .with_state(state);
 
         let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", self.port)).await?;
-        
+
         println!("HTTP server listening on http://0.0.0.0:{}", self.port);
-        
+
         axum::serve(listener, app).await?;
-        
+
         Ok(())
     }
 }
 
-async fn health_check() -> Result<Json<serde_json::Value>, StatusCode> {
+async fn health_check() -> std::result::Result<Json<serde_json::Value>, StatusCode> {
     Ok(Json(json!({
         "status": "ok",
         "service": "popidea"

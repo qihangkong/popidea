@@ -6,7 +6,6 @@ use axum::{
     http::StatusCode,
 };
 use serde_json::json;
-;
 use crate::api::server::AppState;
 use crate::db::crud;
 use crate::errors::Result;
@@ -18,7 +17,7 @@ pub fn router() -> Router<AppState> {
 
 pub async fn get_projects(
     State(state): State<AppState>,
-) -> Result<Json<serde_json::Value>, StatusCode> {
+) -> std::result::Result<Json<serde_json::Value>, StatusCode> {
     let db_pool = state.db_pool.read().await;
     
     if let Some(pool) = db_pool.as_ref() {

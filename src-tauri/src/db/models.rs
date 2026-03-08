@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Project {
     pub id: String,
     pub name: String,
@@ -11,7 +10,7 @@ pub struct Project {
     pub settings: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Episode {
     pub id: String,
     pub project_id: String,
@@ -21,7 +20,7 @@ pub struct Episode {
     pub updated_at: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Storyboard {
     pub id: String,
     pub episode_id: String,
@@ -31,7 +30,7 @@ pub struct Storyboard {
     pub updated_at: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Panel {
     pub id: String,
     pub storyboard_id: String,
@@ -50,7 +49,7 @@ pub struct Panel {
     pub video_url: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct GlobalCharacter {
     pub id: String,
     pub project_id: String,
@@ -61,7 +60,7 @@ pub struct GlobalCharacter {
     pub updated_at: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct GlobalLocation {
     pub id: String,
     pub project_id: String,
@@ -71,9 +70,10 @@ pub struct GlobalLocation {
     pub updated_at: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Task {
     pub id: String,
+    #[serde(rename = "type")]
     pub r#type: String,
     pub status: String,
     pub project: String,
@@ -83,13 +83,14 @@ pub struct Task {
     pub payload: Option<String>,
     pub result: Option<String>,
     pub progress: i32,
+    #[serde(rename = "error_message")]
     pub error_message: Option<String>,
     pub created_at: i64,
     pub started_at: Option<i64>,
     pub finished_at: Option<i64>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct CharacterAppearance {
     pub id: String,
     pub character_id: String,
@@ -99,7 +100,7 @@ pub struct CharacterAppearance {
     pub created_at: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct AssetFolder {
     pub id: String,
     pub project_id: String,
@@ -109,7 +110,7 @@ pub struct AssetFolder {
     pub updated_at: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Asset {
     pub id: String,
     pub project_id: String,

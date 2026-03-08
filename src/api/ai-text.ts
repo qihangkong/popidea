@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import type { QueuedTask } from './tasks'
+import type { Task } from '../types'
 
 export interface AnalyzeOptions {
   provider?: string
@@ -17,7 +17,7 @@ export async function analyzeNovel(
   episodeId: string | undefined,
   content: string,
   options?: AnalyzeOptions
-): Promise<QueuedTask> {
+): Promise<Task> {
   return await invoke('analyze_novel', {
     projectId,
     episodeId,
@@ -36,7 +36,7 @@ export async function analyzeGlobal(
   episodeId: string | undefined,
   content: string,
   options?: AnalyzeOptions
-): Promise<QueuedTask> {
+): Promise<Task> {
   return await invoke('analyze_global', {
     projectId,
     episodeId,
@@ -55,7 +55,7 @@ export async function convertStoryToScript(
   episodeId: string | undefined,
   content: string,
   options?: AnalyzeOptions
-): Promise<QueuedTask> {
+): Promise<Task> {
   return await invoke('convert_story_to_script', {
     projectId,
     episodeId,
@@ -74,7 +74,7 @@ export async function convertScriptToStoryboard(
   episodeId: string | undefined,
   content: string,
   options?: AnalyzeOptions
-): Promise<QueuedTask> {
+): Promise<Task> {
   return await invoke('convert_script_to_storyboard', {
     projectId,
     episodeId,
@@ -92,7 +92,7 @@ export async function aiDesignCharacter(
   projectId: string,
   userInstruction: string,
   options?: AnalyzeOptions
-): Promise<QueuedTask> {
+): Promise<Task> {
   return await invoke('ai_design_character', {
     projectId,
     userInstruction,
@@ -107,7 +107,7 @@ export async function aiDesignLocation(
   projectId: string,
   userInstruction: string,
   options?: AnalyzeOptions
-): Promise<QueuedTask> {
+): Promise<Task> {
   return await invoke('ai_design_location', {
     projectId,
     userInstruction,
@@ -126,7 +126,7 @@ export async function aiModifyAppearance(
   currentDescription: string,
   modificationInstruction: string,
   options?: AnalyzeOptions
-): Promise<QueuedTask> {
+): Promise<Task> {
   return await invoke('ai_modify_appearance', {
     projectId,
     characterId,
@@ -145,7 +145,7 @@ export async function aiModifyLocation(
   currentDescription: string,
   modificationInstruction: string,
   options?: AnalyzeOptions
-): Promise<QueuedTask> {
+): Promise<Task> {
   return await invoke('ai_modify_location', {
     projectId,
     locationId,
@@ -164,7 +164,7 @@ export async function aiModifyShotPrompt(
   currentPrompt: string,
   modificationInstruction: string,
   options?: AnalyzeOptions
-): Promise<QueuedTask> {
+): Promise<Task> {
   return await invoke('ai_modify_shot_prompt', {
     projectId,
     panelId,

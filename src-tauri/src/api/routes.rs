@@ -1,5 +1,4 @@
 use axum::Router;
-use crate::api::routes::projects;
 
 pub mod projects;
 

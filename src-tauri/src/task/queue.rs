@@ -1,9 +1,7 @@
 use std::sync::Arc;
-use tokio::sync::{Mutex, RwLock};
-use uuid::Uuid;
+use tokio::sync::Mutex;
 use chrono::Utc;
 use serde_json::Value;
-use crate::db::models::Task;
 use crate::errors::Result;
 
 #[derive(Debug, Clone)]
@@ -43,27 +41,6 @@ pub struct QueuedTask {
     pub finished_at: Option<i64>,
 }
 
-impl From<QueuedTask> for Task {
-    fn from(task: QueuedTask) -> Self {
-        Task {
-            id: task.id,
-            r#type: task.task_type,
-            status: task.status.as_str().to_string(),
-            project: task.project,
-            episode_id: task.episode_id,
-            target_type: task.target_type,
-            target_id: task.target_id,
-            payload: task.payload,
-            result: task.result,
-            progress: task.progress,
-            error_message: task.error_message,
-            created_at: task.created_at,
-            started_at: task.started_at,
-            finished_at: task.finished_at,
-        }
-    }
-}
-
 pub struct TaskQueue {
     tasks: Arc<Mutex<Vec<QueuedTask>>>,
 }
@@ -83,7 +60,7 @@ impl TaskQueue {
 
     pub async fn dequeue(&self) -> Option<QueuedTask> {
         let mut tasks = self.tasks.lock().await;
-        
+
         for (i, task) in tasks.iter().enumerate() {
             if matches!(task.status, TaskStatus::Queued) {
                 let task = task.clone();
@@ -92,41 +69,41 @@ impl TaskQueue {
                 return Some(task);
             }
         }
-        
+
         None
     }
 
     pub async fn update_progress(&self, task_id: &str, progress: i32) -> Result<()> {
         let mut tasks = self.tasks.lock().await;
-        
+
         if let Some(task) = tasks.iter_mut().find(|t| t.id == task_id) {
             task.progress = progress;
         }
-        
+
         Ok(())
     }
 
     pub async fn complete_task(&self, task_id: &str, result: Option<String>) -> Result<()> {
         let mut tasks = self.tasks.lock().await;
-        
+
         if let Some(task) = tasks.iter_mut().find(|t| t.id == task_id) {
             task.status = TaskStatus::Completed;
             task.result = result;
             task.finished_at = Some(Utc::now().timestamp());
         }
-        
+
         Ok(())
     }
 
     pub async fn fail_task(&self, task_id: &str, error_message: String) -> Result<()> {
         let mut tasks = self.tasks.lock().await;
-        
+
         if let Some(task) = tasks.iter_mut().find(|t| t.id == task_id) {
             task.status = TaskStatus::Failed;
             task.error_message = Some(error_message);
             task.finished_at = Some(Utc::now().timestamp());
         }
-        
+
         Ok(())
     }
 
