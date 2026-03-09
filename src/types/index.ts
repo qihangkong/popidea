@@ -78,3 +78,26 @@ export interface Task {
   startedAt?: number
   finishedAt?: number
 }
+
+export interface Asset {
+  id: string
+  project_id: string
+  folder_id?: string
+  asset_type: string
+  name?: string
+  description?: string
+  image_url?: string
+  metadata?: string
+  labels?: string
+  created_at: number
+  updated_at: number
+}
+
+export interface AssetFolder {
+  id: string
+  project_id: string
+  name: string
+  parent_id?: string
+  created_at: number
+  updated_at: number
+}
