@@ -35,6 +35,32 @@ body {
   flex-direction: column;
 }
 
+.sidebar-header {
+  padding: 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  color: #667eea;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333333;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background-color: #e0e0e0;
+  margin: 0 16px;
+}
+
 .sidebar-content {
   padding: 20px 12px;
   flex: 1;
@@ -101,6 +127,55 @@ body {
   flex: 1;
   padding: 40px;
   background-color: #ffffff;
+}
+
+.content-header {
+  margin-bottom: 30px;
+}
+
+.content-header h1 {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333333;
+}
+
+.asset-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.asset-tab {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666666;
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.asset-tab:hover {
+  background-color: #e9ecef;
+  color: #333333;
+}
+
+.asset-tab.active {
+  background-color: #667eea;
+  color: #ffffff;
+  border-color: #667eea;
+}
+
+.asset-tab.active:hover {
+  background-color: #5a6fd6;
+}
+
+.content-body {
+  padding: 20px 0;
 }
 
 .main-content h1 {
