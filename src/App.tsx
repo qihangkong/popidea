@@ -151,7 +151,6 @@ function App() {
         {activeItem === '资产' ? (
           <>
             <div className="content-header">
-              <h1>资产</h1>
               <div className="asset-tabs">
                 {assetTypes.map((type) => (
                   <button
@@ -428,7 +427,7 @@ function App() {
                   </div>
 
                   <div className="config-block">
-                    <div className="=">
+                    <div className="config-toggle">
                       <label className="toggle-label">
                         <input
                           type="checkbox"
