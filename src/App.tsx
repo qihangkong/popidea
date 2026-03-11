@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Layers, Folder, Settings as SettingsIcon, Lightbulb, Brain, Image, Video, Mic, Key, Globe, Cpu } from 'lucide-react'
+import { Layers, Folder, Settings as SettingsIcon, Lightbulb, Brain, Image, Video, Mic, Key, Globe, Cpu, Plus, MoreHorizontal, Users } from 'lucide-react'
 import './App.css'
 
 interface ModelConfig {
@@ -15,38 +15,48 @@ interface ComfyUIConfig {
   enabled: boolean
 }
 
+interface Project {
+  id: string
+  title: string
+  thumbnail: string
+  chapters: number
+  collaborators: number
+  updatedAt: string
+}
+
 function App() {
   const [activeItem, setActiveItem] = useState('资产')
   const [activeAssetType, setActiveAssetType] = useState('角色')
-  
+  const [projectTab, setProjectTab] = useState('myProjects')
+
   const [textModel, setTextModel] = useState<ModelConfig>({
     modelName: '',
     apiUrl: '',
     apiKey: '',
     enabled: false
   })
-  
+
   const [imageModel, setImageModel] = useState<ModelConfig>({
     modelName: '',
     apiUrl: '',
     apiKey: '',
     enabled: false
   })
-  
+
   const [videoModel, setVideoModel] = useState<ModelConfig>({
     modelName: '',
     apiUrl: '',
     apiKey: '',
     enabled: false
   })
-  
+
   const [voiceModel, setVoiceModel] = useState<ModelConfig>({
     modelName: '',
     apiUrl: '',
     apiKey: '',
     enabled: false
   })
-  
+
   const [comfyUI, setComfyUI] = useState<ComfyUIConfig>({
     url: '',
     apiKey: '',
@@ -63,6 +73,43 @@ function App() {
     setComfyUI((prev) => ({ ...prev, [field]: value }))
   }
 
+  const myProjects: Project[] = [
+    {
+      id: '1',
+      title: '《别叫我弟弟》',
+      thumbnail: 'https://pubsto.fullpeace.cn/aigc/entweb/20251223095315.jpg',
+      chapters: 0,
+      collaborators: 0,
+      updatedAt: '2026-03-11 13:59:49'
+    }
+  ]
+
+  const participatedProjects: Project[] = []
+
+  const ProjectCard = ({ project }: { project: Project }) => (
+    <div className="video-card cursor-pointer">
+      <div className="absolute right-2 top-1 z-[3] bg-black bg-opacity-50 rounded-lg px-1 py-[2px] flex items-center justify-center text-xl cursor-pointer hover:bg-opacity-70">
+        <MoreHorizontal className="w-5 h-5 text-white" />
+      </div>
+      <div className="relative flex items-center justify-center overflow-hidden aspect-square">
+        <div className="el-image w-full h-full object-contain">
+          <img src={project.thumbnail} className="w-full h-full object-cover" alt={project.title} />
+        </div>
+        <div className="absolute bottom-2 right-2">
+          <span className="text-xs px-2 py-1 bg-black/80 rounded text-white backdrop-blur-sm">共{project.chapters}章</span>
+        </div>
+      </div>
+      <div className="p-2">
+        <h3 className="text-sm">{project.title}</h3>
+        <p className="text-xs opacity-50 mt-1">{project.updatedAt}</p>
+        <div className="flex items-center gap-1 mt-2">
+          <Users className="w-3 h-3 text-gray-500" />
+          <span className="text-gray-400 text-xs">{project.collaborators}人协作</span>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="app">
       <aside className="sidebar">
@@ -72,7 +119,7 @@ function App() {
         </div>
         <div className="sidebar-divider"></div>
         <div className="sidebar-content">
-          <div 
+          <div
             className={`nav-item ${activeItem === '资产' ? 'active' : ''}`}
             onClick={() => setActiveItem('资产')}
             tabIndex={-1}
@@ -80,7 +127,7 @@ function App() {
             <Layers className="nav-icon" />
             <span>资产</span>
           </div>
-          <div 
+          <div
             className={`nav-item ${activeItem === '项目' ? 'active' : ''}`}
             onClick={() => setActiveItem('项目')}
             tabIndex={-1}
@@ -88,7 +135,9 @@ function App() {
             <Folder className="nav-icon" />
             <span>项目</span>
           </div>
-          <div 
+        </div>
+        <div className="sidebar-footer">
+          <div
             className={`nav-item settings ${activeItem === '设置' ? 'active' : ''}`}
             onClick={() => setActiveItem('设置')}
             tabIndex={-1}
@@ -117,6 +166,41 @@ function App() {
             </div>
             <div className="content-body">
               <p>当前选中：{activeAssetType}</p>
+            </div>
+          </>
+        ) : activeItem === '项目' ? (
+          <>
+            <div className="project-page">
+              <div className="project-header">
+                <div className="project-tabs">
+                  <button
+                    className={`project-tab ${projectTab === 'myProjects' ? 'active' : ''}`}
+                    onClick={() => setProjectTab('myProjects')}
+                  >
+                    我的项目
+                  </button>
+                  <button
+                    className={`project-tab ${projectTab === 'participated' ? 'active' : ''}`}
+                    onClick={() => setProjectTab('participated')}
+                  >
+                    我参与的项目
+                  </button>
+                </div>
+                <button className="create-project-btn">
+                  <Plus className="w-4 h-4" />
+                  创建项目
+                </button>
+              </div>
+              <div className="project-grid video-grid py-2">
+                {(projectTab === 'myProjects' ? myProjects : participatedProjects).map((project) => (
+                  <ProjectCard key={project.id} project={project} />
+                ))}
+                {(projectTab === 'myProjects' ? myProjects : participatedProjects).length === 0 && (
+                  <div className="empty-state">
+                    <p className="text-gray-400 text-sm">暂无项目</p>
+                  </div>
+                )}
+              </div>
             </div>
           </>
         ) : activeItem === '设置' ? (
@@ -217,7 +301,7 @@ function App() {
                           className="toggle-input"
                         />
                         <span className="toggle-slider"></span>
-                        <span className="toggle-text">启用图像模型</span>
+                        <span className="toggle-text">启用图像图像模型</span>
                       </label>
                     </div>
 
@@ -344,7 +428,7 @@ function App() {
                   </div>
 
                   <div className="config-block">
-                    <div className="config-toggle">
+                    <div className="=">
                       <label className="toggle-label">
                         <input
                           type="checkbox"
@@ -460,14 +544,7 @@ function App() {
               </div>
             </div>
           </>
-        ) : (
-          <>
-            <h1>欢迎使用</h1>
-            <p>这是一个示例页面，主内容区域可以显示任何内容。</p>
-            <p>左侧是导航栏，包含资产、项目和设置选项。</p>
-            <p>当前选中：{activeItem}</p>
-          </>
-        )}
+        ) : null}
       </main>
     </div>
   )
