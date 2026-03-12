@@ -5,11 +5,9 @@ import './App.css'
 interface ModelConfigCard {
   id: string
   name: string
-  type: 'text' | 'image' | 'video' | 'voice' | 'comfyui'
-  modelName: string
-  apiUrl: string
+  platform: 'zhipu' | 'volcengine' | 'comfyui' | 'custom'
+  apiUrl?: string
   apiKey: string
-  enabled: boolean
 }
 
 interface Project {
@@ -30,15 +28,19 @@ function App() {
 
   const assetTypes = ['角色', '场景', '道具', '分镜头', '分镜视频', '成片']
 
+  const platformConfig = {
+    zhipu: { name: '质谱', defaultUrl: 'https://open.bigmodel.cn/api/paas/v4', icon: Brain, color: '#667eea' },
+    volcengine: { name: '火山引擎', defaultUrl: 'https://ark.cn-beijing.volces.com/api/v3', icon: Globe, color: '#f59e0b' },
+    comfyui: { name: 'ComfyUI', defaultUrl: 'http://127.0.0.1:8188', icon: Cpu, color: '#8b5cf6' },
+    custom: { name: '自定义', defaultUrl: '', icon: SettingsIcon, color: '#10b981' }
+  }
+
   const handleAddModel = () => {
     const newConfig: ModelConfigCard = {
       id: Date.now().toString(),
       name: '',
-      type: 'text',
-      modelName: '',
-      apiUrl: '',
-      apiKey: '',
-      enabled: true
+      platform: 'zhipu',
+      apiKey: ''
     }
     setModelConfigs([...modelConfigs, newConfig])
   }
@@ -51,17 +53,6 @@ function App() {
     setModelConfigs(modelConfigs.map(config =>
       config.id === id ? { ...config, [field]: value } : config
     ))
-  }
-
-  const getTypeInfo = (type: string) => {
-    switch (type) {
-      case 'text': return { icon: Brain, label: '文本模型', color: '#667eea' }
-      case 'image': return { icon: Image, label: '图像模型', color: '#f59e0b' }
-      case 'video': return { icon: Video, label: '视频模型', color: '#10b981' }
-      case 'voice': return { icon: Mic, label: '语音模型', color: '#ef4444' }
-      case 'comfyui': return { icon: Cpu, label: 'ComfyUI', color: '#8b5cf6' }
-      default: return { icon: Brain, label: '模型', color: '#667eea' }
-    }
   }
 
   const myProjects: Project[] = [
@@ -102,13 +93,14 @@ function App() {
   )
 
   const ModelCard = ({ config }: { config: ModelConfigCard }) => {
-    const typeInfo = getTypeInfo(config.type)
-    const Icon = typeInfo.icon
+    const platformInfo = platformConfig[config.platform]
+    const Icon = platformInfo.icon
+    const showApiUrl = config.platform === 'comfyui' || config.platform === 'custom'
 
     return (
       <div className="settings-section">
         <div className="section-header">
-          <div className="section-icon" style={{ color: typeInfo.color }}>
+          <div className="section-icon" style={{ color: platformInfo.color }}>
             <Icon className="w-5 h-5" />
           </div>
           <div className="flex-1">
@@ -117,10 +109,10 @@ function App() {
               value={config.name}
               onChange={(e) => handleModelConfigChange(config.id, 'name', e.target.value)}
               className="model-name-input"
-              placeholder={typeInfo.label + '配置'}
+              placeholder={platformInfo.name + '配置'}
               autoComplete="off"
             />
-            <p className="section-description">{typeInfo.label}</p>
+            <p className="section-description">{platformInfo.name}</p>
           </div>
           <button
             onClick={() => handleDeleteModel(config.id)}
@@ -132,80 +124,57 @@ function App() {
         </div>
 
         <div className="config-block">
-          <div className="config-toggle">
-            <label className="toggle-label">
-              <input
-                type="checkbox"
-                checked={config.enabled}
-                onChange={(e) => handleModelConfigChange(config.id, 'enabled', e.target.checked)}
-                className="toggle-input"
-              />
-              <span className="toggle-slider"></span>
-              <span className="toggle-text">启用</span>
-            </label>
-          </div>
+          <div className="config-fields">
+            <div className="field-group">
+              <label>平台</label>
+              <select
+                value={config.platform}
+                onChange={(e) => handleModelConfigChange(config.id, 'platform', e.target.value as any)}
+                className="config-input"
+              >
+                <option value="zhipu">质谱</option>
+                <option value="volcengine">火山引擎</option>
+                <option value="comfyui">ComfyUI</option>
+                <option value="custom">自定义</option>
+              </select>
+            </div>
 
-          {config.enabled && (
-            <div className="config-fields">
-              <div className="field-group">
-                <label>模型类型</label>
-                <select
-                  value={config.type}
-                  onChange={(e) => handleModelConfigChange(config.id, 'type', e.target.value)}
-                  className="config-input"
-                >
-                  <option value="text">文本模型</option>
-                  <option value="image">图像模型</option>
-                  <option value="video">视频模型</option>
-                  <option value="voice">语音模型</option>
-                  <option value="comfyui">ComfyUI</option>
-                </select>
-              </div>
-              <div className="field-group">
-                <label>模型名称</label>
-                <input
-                  type="text"
-                  value={config.modelName}
-                  onChange={(e) => handleModelConfigChange(config.id, 'modelName', e.target.value)}
-                  className="config-input"
-                  placeholder="例如：gpt-4"
-                  autoComplete="off"
-                />
-              </div>
+            {showApiUrl && (
               <div className="field-group">
                 <label>API URL</label>
                 <div className="input-wrapper">
                   <Globe className="input-icon" />
                   <input
                     type="text"
-                    value={config.apiUrl}
+                    value={config.apiUrl || ''}
                     onChange={(e) => handleModelConfigChange(config.id, 'apiUrl', e.target.value)}
                     className="config-input"
-                    placeholder="https://api.openai.com/v1"
+                    placeholder={config.platform === 'comfyui' ? 'http://127.0.0.1:8188' : 'https://api.example.com/v1'}
                     autoComplete="off"
                   />
                 </div>
               </div>
-              <div className="field-group">
-                <label>API Key</label>
-                <div className="input-wrapper">
-                  <Key className="input-icon" />
-                  <input
-                    type="password"
-                    value={config.apiKey}
-                    onChange={(e) => handleModelConfigChange(config.id, 'apiKey', e.target.value)}
-                    className="config-input"
-                    placeholder="sk-..."
-                    autoComplete="off"
-                  />
-                </div>
+            )}
+
+            <div className="field-group">
+              <label>API Key</label>
+              <div className="input-wrapper">
+                <Key className="input-icon" />
+                <input
+                  type="password"
+                  value={config.apiKey}
+                  onChange={(e) => handleModelConfigChange(config.id, 'apiKey', e.target.value)}
+                  className="config-input"
+                  placeholder="输入您的 API Key"
+                  autoComplete="off"
+                />
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     )
-  }
+    }
 
   return (
     <div className="app">
