@@ -30,6 +30,20 @@ interface ModelCardProps {
 
 const ModelCard = ({ config, type, onConfigChange, onDelete }: ModelCardProps) => {
   const Icon = type === 'llm' ? Brain : Image
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true)
+  }
+
+  const handleConfirmDelete = () => {
+    onDelete(config.id, type)
+    setShowDeleteConfirm(false)
+  }
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false)
+  }
 
   return (
     <div className="settings-section">
@@ -48,13 +62,26 @@ const ModelCard = ({ config, type, onConfigChange, onDelete }: ModelCardProps) =
           />
         </div>
         <button
-          onClick={() => onDelete(config.id, type)}
+          onClick={handleDeleteClick}
           className="delete-model-btn"
           type="button"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
+
+      {showDeleteConfirm && (
+        <div className="delete-confirm-overlay">
+          <div className="delete-confirm-dialog">
+            <h3>确认删除</h3>
+            <p>确定要删除此模型配置吗？此操作无法撤销。</p>
+            <div className="delete-confirm-actions">
+              <button onClick={handleCancelDelete} className="cancel-btn">取消</button>
+              <button onClick={handleConfirmDelete} className="confirm-btn">删除</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="config-block">
         <div className="config-fields">
