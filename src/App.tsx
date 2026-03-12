@@ -19,7 +19,7 @@ interface Project {
   updatedAt: string
 }
 
-type SettingsTab = 'llm' | 'image'
+type SettingsTab = 'llm' | 'comfyui'
 
 interface ModelCardProps {
   config: ModelConfigCard
@@ -29,7 +29,7 @@ interface ModelCardProps {
 }
 
 const ModelCard = ({ config, type, onConfigChange, onDelete }: ModelCardProps) => {
-  const Icon = type === 'llm' ? Brain : Image
+  const Icon = type === 'llm' ? Brain : Cpu
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const handleDeleteClick = () => {
@@ -57,7 +57,7 @@ const ModelCard = ({ config, type, onConfigChange, onDelete }: ModelCardProps) =
             value={config.name}
             onChange={(e) => onConfigChange(config.id, 'name', e.target.value, type)}
             className="model-name-input"
-            placeholder={type === 'llm' ? '大语言模型配置' : '图片生成模型配置'}
+            placeholder={type === 'llm' ? '大语言模型配置' : 'ComfyUI配置'}
             autoComplete="off"
           />
         </div>
@@ -86,7 +86,7 @@ const ModelCard = ({ config, type, onConfigChange, onDelete }: ModelCardProps) =
       <div className="config-block">
         <div className="config-fields">
           <div className="field-group">
-            <label>API URL</label>
+            <label>{type === 'llm' ? 'API URL' : 'ComfyUI URL'}</label>
             <div className="input-wrapper">
               <Globe className="input-icon" />
               <input
@@ -94,41 +94,45 @@ const ModelCard = ({ config, type, onConfigChange, onDelete }: ModelCardProps) =
                 value={config.apiUrl}
                 onChange={(e) => onConfigChange(config.id, 'apiUrl', e.target.value, type)}
                 className="config-input"
-                placeholder="https://api.example.com/v1"
+                placeholder={type === 'llm' ? 'https://api.example.com/v1' : 'http://127.0.0.1:8188'}
                 autoComplete="off"
               />
             </div>
           </div>
 
-          <div className="field-group">
-            <label>API Key</label>
-            <div className="input-wrapper">
-              <Key className="input-icon" />
-              <input
-                type="password"
-                value={config.apiKey}
-                onChange={(e) => onConfigChange(config.id, 'apiKey', e.target.value, type)}
-                className="config-input"
-                placeholder="输入您的 API Key"
-                autoComplete="off"
-              />
-            </div>
-          </div>
+          {type === 'llm' && (
+            <>
+              <div className="field-group">
+                <label>API Key</label>
+                <div className="input-wrapper">
+                  <Key className="input-icon" />
+                  <input
+                    type="password"
+                    value={config.apiKey}
+                    onChange={(e) => onConfigChange(config.id, 'apiKey', e.target.value, type)}
+                    className="config-input"
+                    placeholder="输入您的 API Key"
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
 
-          <div className="field-group">
-            <label>Model Name</label>
-            <div className="input-wrapper">
-              <Cpu className="input-icon" />
-              <input
-                type="text"
-                value={config.modelName}
-                onChange={(e) => onConfigChange(config.id, 'modelName', e.target.value, type)}
-                className="config-input"
-                placeholder="gpt-4o"
-                autoComplete="off"
-              />
-            </div>
-          </div>
+              <div className="field-group">
+                <label>Model Name</label>
+                <div className="input-wrapper">
+                  <Cpu className="input-icon" />
+                  <input
+                    type="text"
+                    value={config.modelName}
+                    onChange={(e) => onConfigChange(config.id, 'modelName', e.target.value, type)}
+                    className="config-input"
+                    placeholder="gpt-4o"
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -142,7 +146,7 @@ function App() {
   const [settingsTab, setSettingsTab] = useState<SettingsTab>('llm')
 
   const [llmConfigs, setLlmConfigs] = useState<ModelConfigCard[]>([])
-  const [imageConfigs, setImageConfigs] = useState<ModelConfigCard[]>([])
+  const [comfyuiConfigs, setComfyuiConfigs] = useState<ModelConfigCard[]>([])
 
   const handleAddLLMModel = () => {
     const config: ModelConfigCard = {
@@ -155,15 +159,15 @@ function App() {
     setLlmConfigs([...llmConfigs, config])
   }
 
-  const handleAddImageModel = () => {
+  const handleAddComfyuiModel = () => {
     const config: ModelConfigCard = {
       id: Date.now().toString(),
-      name: '图片生成模型配置',
+      name: 'ComfyUI配置',
       modelName: '',
       apiUrl: '',
       apiKey: ''
     }
-    setImageConfigs([...imageConfigs, config])
+    setComfyuiConfigs([...comfyuiConfigs, config])
   }
 
   const assetTypes = ['角色', '场景', '道具', '分镜头', '分镜视频', '成片']
@@ -182,7 +186,7 @@ function App() {
     if (type === 'llm') {
       setLlmConfigs(prev => prev.filter(config => config.id !== id))
     } else {
-      setImageConfigs(prev => prev.filter(config => config.id !== id))
+      setComfyuiConfigs(prev => prev.filter(config => config.id !== id))
     }
   }, [])
 
@@ -195,7 +199,7 @@ function App() {
     if (type === 'llm') {
       setLlmConfigs(updater)
     } else {
-      setImageConfigs(updater)
+      setComfyuiConfigs(updater)
     }
   }, [])
 
@@ -347,11 +351,11 @@ function App() {
                   大语言模型设置
                 </button>
                 <button
-                  className={`settings-tab ${settingsTab === 'image' ? 'active' : ''}`}
-                  onClick={() => setSettingsTab('image')}
+                  className={`settings-tab ${settingsTab === 'comfyui' ? 'active' : ''}`}
+                  onClick={() => setSettingsTab('comfyui')}
                 >
-                  <Image className="w-4 h-4" />
-                  图片生成设置
+                  <Cpu className="w-4 h-4" />
+                  ComfyUI设置
                 </button>
               </div>
 
@@ -376,20 +380,20 @@ function App() {
                   </>
                 ) : (
                   <>
-                    {imageConfigs.length === 0 ? (
+                    {comfyuiConfigs.length === 0 ? (
                       <div className="empty-models-state">
-                        <Image className="empty-icon" />
-                        <p>暂无图片生成模型配置</p>
-                        <p className="text-sm text-gray-400">点击"添加图片生成模型"按钮来配置您的模型</p>
+                        <Cpu className="empty-icon" />
+                        <p>暂无ComfyUI配置</p>
+                        <p className="text-sm text-gray-400">点击"添加ComfyUI"按钮来配置您的ComfyUI</p>
                       </div>
                     ) : (
-                      imageConfigs.map((config) => (
-                        <ModelCard key={config.id} config={config} type="image" onConfigChange={handleModelConfigChange} onDelete={handleDeleteModel} />
-                      ))
-                    )}
-                    <button onClick={handleAddImageModel} className="settings-add-btn">
+                        comfyuiConfigs.map((config) => (
+                          <ModelCard key={config.id} config={config} type="comfyui" onConfigChange={handleModelConfigChange} onDelete={handleDeleteModel} />
+                        ))
+                      )}
+                    <button onClick={handleAddComfyuiModel} className="settings-add-btn">
                       <Plus className="w-4 h-4" />
-                      添加图片生成模型
+                      添加ComfyUI
                     </button>
                   </>
                 )}
