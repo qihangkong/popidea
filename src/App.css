@@ -183,6 +183,9 @@ body {
 }
 
 .settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 24px;
 }
 
@@ -198,10 +201,44 @@ body {
   color: #666666;
 }
 
+.settings-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #667eea;
+  border: 1px solid #667eea;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.settings-add-btn:hover {
+  background-color: #5a6fd6;
+}
+
 .settings-content {
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+.empty-models-state {
+  text-align: center;
+  padding: 48px 24px;
+  background-color: #f8f9fa;
+  border: 1px dashed #e0e0e0;
+  border-radius: 12px;
+}
+
+.empty-icon {
+  width: 48px;
+  height: 48px;
+  color: #cccccc;
+  margin: 0 auto 16px;
 }
 
 .settings-section {
@@ -226,7 +263,29 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #667eea;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.model-name-input {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333333;
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 4px 0;
+}
+
+.model-name-input::placeholder {
+  color: #999999;
+}
+
+.model-name-input:focus {
+  border-bottom: 2px solid #667eea;
 }
 
 .section-header h2 {
@@ -241,142 +300,7 @@ body {
   color: #666666;
 }
 
-.default-models-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.model-card {
-  background-color: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.model-card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.model-icon {
-  width: 20px;
-  height: 20px;
-  color: #667eea;
-}
-
-.model-card-header span {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333333;
-}
-
-.model-select {
-  width: 100%;
-  padding: 8px 12px;
-  font-size: 14px;
-  color: #333333;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.model-select:hover {
-  border-color: #667eea;
-}
-
-.model-select:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.providers-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 48px 24px;
-  background-color: #f8f9fa;
-  border: 1px dashed #e0e0e0;
-  border-radius: 8px;
-}
-
-.empty-icon {
-  width: 48px;
-  height: 48px;
-  color: #cccccc;
-  margin: 0 auto 16px;
-}
-
-.empty-state p {
-  font-size: 14px;
-  color: #666666;
-  margin-bottom: 16px;
-}
-
-.add-provider-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #667eea;
-  background-color: rgba(102, 126, 234, 0.1);
-  border: 1px solid #667eea;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.add-provider-btn:hover {
-  background-color: #667eea;
-  color: #ffffff;
-}
-
-.provider-card {
-  background-color: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.provider-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.provider-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.provider-info h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333333;
-}
-
-.provider-type {
-  font-size: 12px;
-  color: #666666;
-  background-color: #e9ecef;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-.delete-provider-btn {
+.delete-model-btn {
   width: 32px;
   height: 32px;
   display: flex;
@@ -388,91 +312,20 @@ body {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
+  padding: 0;
 }
 
-.delete-provider-btn:hover {
-  background-color: #dc3545;
-  color: #ffffff;
-}
-
-.provider-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.field-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.field-group label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #666666;
-}
-
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-icon {
-  position: absolute;
-  left: 12px;
+.delete-model-btn svg {
   width: 16px;
   height: 16px;
-  color: #999999;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
 }
 
-.provider-input {
-  width: 100%;
-  padding: 10px 12px 10px 40px;
-  font-size: 14px;
-  color: #333333;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-}
-
-.provider-input:hover {
-  border-color: #667eea;
-}
-
-.provider-input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.config-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.config-input {
-  width: 100%;
-  padding: 10px 12px 10px 40px;
-  font-size: 14px;
-  color: #333333;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-}
-
-.config-input:hover {
-  border-color: #667eea;
-}
-
-.config-input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+.delete-model-btn:hover {
+  background-color: #dc3545;
+  color: #ffffff;
 }
 
 .config-block {
@@ -526,134 +379,72 @@ body {
   left: 22px;
 }
 
+.toggle-slider {
+  display: none;
+}
+
 .toggle-text {
   font-size: 14px;
   font-weight: 500;
   color: #333333;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: #ffffff;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 480px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.modal-header h2 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333333;
-}
-
-.modal-close-btn {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: #666666;
-  background-color: transparent;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.modal-close-btn:hover {
-  background-color: #f8f9fa;
-  color: #333333;
-}
-
-.modal-body {
-  padding: 24px;
+.config-fields {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
-.modal-input,
-.modal-select {
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-group label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #666666;
+}
+
+.config-input {
   width: 100%;
   padding: 10px 12px;
   font-size: 14px;
   color: #333333;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   transition: all 0.3s ease;
 }
 
-.modal-input:hover,
-.modal-select:hover {
+.config-input:hover {
   border-color: #667eea;
 }
 
-.modal-input:focus,
-.modal-select:focus {
+.config-input:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.modal-footer {
+.input-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 20px 24px;
-  border-top: 1px solid #e0e0e0;
 }
 
-.modal-btn {
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.input-wrapper .config-input {
+  padding-left: 40px;
 }
 
-.modal-btn-secondary {
-  color: #666666;
-  background-color: #f8f9fa;
-  border: 1px solid #e0e0e0;
-}
-
-.modal-btn-secondary:hover {
-  background-color: #e9ecef;
-}
-
-.modal-btn-primary {
-  color: #ffffff;
-  background-color: #667eea;
-  border: 1px solid #667eea;
-}
-
-.modal-btn-primary:hover {
-  background-color: #5a6fd6;
+.input-icon {
+  position: absolute;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+  color: #999999;
+  z-index: 1;
 }
 
 /* Project Page Styles */
@@ -900,6 +691,14 @@ body {
 
 .h-3 {
   height: 0.75rem;
+}
+
+.w-4 {
+  width: 1rem;
+}
+
+.h-4 {
+  height: 1rem;
 }
 
 .w-5 {

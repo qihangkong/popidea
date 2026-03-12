@@ -1,16 +1,13 @@
 import { useState } from 'react'
-import { Layers, Folder, Settings as SettingsIcon, Lightbulb, Brain, Image, Video, Mic, Key, Globe, Cpu, Plus, MoreHorizontal, Users } from 'lucide-react'
+import { Layers, Folder, Settings as SettingsIcon, Lightbulb, Brain, Image, Video, Mic, Key, Globe, Cpu, Plus, MoreHorizontal, Users, X } from 'lucide-react'
 import './App.css'
 
-interface ModelConfig {
+interface ModelConfigCard {
+  id: string
+  name: string
+  type: 'text' | 'image' | 'video' | 'voice' | 'comfyui'
   modelName: string
   apiUrl: string
-  apiKey: string
-  enabled: boolean
-}
-
-interface ComfyUIConfig {
-  url: string
   apiKey: string
   enabled: boolean
 }
@@ -29,48 +26,42 @@ function App() {
   const [activeAssetType, setActiveAssetType] = useState('角色')
   const [projectTab, setProjectTab] = useState('myProjects')
 
-  const [textModel, setTextModel] = useState<ModelConfig>({
-    modelName: '',
-    apiUrl: '',
-    apiKey: '',
-    enabled: false
-  })
-
-  const [imageModel, setImageModel] = useState<ModelConfig>({
-    modelName: '',
-    apiUrl: '',
-    apiKey: '',
-    enabled: false
-  })
-
-  const [videoModel, setVideoModel] = useState<ModelConfig>({
-    modelName: '',
-    apiUrl: '',
-    apiKey: '',
-    enabled: false
-  })
-
-  const [voiceModel, setVoiceModel] = useState<ModelConfig>({
-    modelName: '',
-    apiUrl: '',
-    apiKey: '',
-    enabled: false
-  })
-
-  const [comfyUI, setComfyUI] = useState<ComfyUIConfig>({
-    url: '',
-    apiKey: '',
-    enabled: false
-  })
+  const [modelConfigs, setModelConfigs] = useState<ModelConfigCard[]>([])
 
   const assetTypes = ['角色', '场景', '道具', '分镜头', '分镜视频', '成片']
 
-  const handleModelChange = (setter: (config: ModelConfig) => void, field: keyof ModelConfig, value: string | boolean) => {
-    setter((prev) => ({ ...prev, [field]: value }))
+  const handleAddModel = () => {
+    const newConfig: ModelConfigCard = {
+      id: Date.now().toString(),
+      name: '',
+      type: 'text',
+      modelName: '',
+      apiUrl: '',
+      apiKey: '',
+      enabled: true
+    }
+    setModelConfigs([...modelConfigs, newConfig])
   }
 
-  const handleComfyUIChange = (field: keyof ComfyUIConfig, value: string | boolean) => {
-    setComfyUI((prev) => ({ ...prev, [field]: value }))
+  const handleDeleteModel = (id: string) => {
+    setModelConfigs(modelConfigs.filter(config => config.id !== id))
+  }
+
+  const handleModelConfigChange = (id: string, field: keyof ModelConfigCard, value: string | boolean) => {
+    setModelConfigs(modelConfigs.map(config =>
+      config.id === id ? { ...config, [field]: value } : config
+    ))
+  }
+
+  const getTypeInfo = (type: string) => {
+    switch (type) {
+      case 'text': return { icon: Brain, label: '文本模型', color: '#667eea' }
+      case 'image': return { icon: Image, label: '图像模型', color: '#f59e0b' }
+      case 'video': return { icon: Video, label: '视频模型', color: '#10b981' }
+      case 'voice': return { icon: Mic, label: '语音模型', color: '#ef4444' }
+      case 'comfyui': return { icon: Cpu, label: 'ComfyUI', color: '#8b5cf6' }
+      default: return { icon: Brain, label: '模型', color: '#667eea' }
+    }
   }
 
   const myProjects: Project[] = [
@@ -109,6 +100,112 @@ function App() {
       </div>
     </div>
   )
+
+  const ModelCard = ({ config }: { config: ModelConfigCard }) => {
+    const typeInfo = getTypeInfo(config.type)
+    const Icon = typeInfo.icon
+
+    return (
+      <div className="settings-section">
+        <div className="section-header">
+          <div className="section-icon" style={{ color: typeInfo.color }}>
+            <Icon className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <input
+              type="text"
+              value={config.name}
+              onChange={(e) => handleModelConfigChange(config.id, 'name', e.target.value)}
+              className="model-name-input"
+              placeholder={typeInfo.label + '配置'}
+              autoComplete="off"
+            />
+            <p className="section-description">{typeInfo.label}</p>
+          </div>
+          <button
+            onClick={() => handleDeleteModel(config.id)}
+            className="delete-model-btn"
+            type="button"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="config-block">
+          <div className="config-toggle">
+            <label className="toggle-label">
+              <input
+                type="checkbox"
+                checked={config.enabled}
+                onChange={(e) => handleModelConfigChange(config.id, 'enabled', e.target.checked)}
+                className="toggle-input"
+              />
+              <span className="toggle-slider"></span>
+              <span className="toggle-text">启用</span>
+            </label>
+          </div>
+
+          {config.enabled && (
+            <div className="config-fields">
+              <div className="field-group">
+                <label>模型类型</label>
+                <select
+                  value={config.type}
+                  onChange={(e) => handleModelConfigChange(config.id, 'type', e.target.value)}
+                  className="config-input"
+                >
+                  <option value="text">文本模型</option>
+                  <option value="image">图像模型</option>
+                  <option value="video">视频模型</option>
+                  <option value="voice">语音模型</option>
+                  <option value="comfyui">ComfyUI</option>
+                </select>
+              </div>
+              <div className="field-group">
+                <label>模型名称</label>
+                <input
+                  type="text"
+                  value={config.modelName}
+                  onChange={(e) => handleModelConfigChange(config.id, 'modelName', e.target.value)}
+                  className="config-input"
+                  placeholder="例如：gpt-4"
+                  autoComplete="off"
+                />
+              </div>
+              <div className="field-group">
+                <label>API URL</label>
+                <div className="input-wrapper">
+                  <Globe className="input-icon" />
+                  <input
+                    type="text"
+                    value={config.apiUrl}
+                    onChange={(e) => handleModelConfigChange(config.id, 'apiUrl', e.target.value)}
+                    className="config-input"
+                    placeholder="https://api.openai.com/v1"
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+              <div className="field-group">
+                <label>API Key</label>
+                <div className="input-wrapper">
+                  <Key className="input-icon" />
+                  <input
+                    type="password"
+                    value={config.apiKey}
+                    onChange={(e) => handleModelConfigChange(config.id, 'apiKey', e.target.value)}
+                    className="config-input"
+                    placeholder="sk-..."
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="app">
@@ -206,354 +303,28 @@ function App() {
           <>
             <div className="settings-page">
               <div className="settings-header">
-                <h1>设置</h1>
-                <p className="settings-description">配置您的模型和 API 设置</p>
+                <div>
+                  <h1>设置</h1>
+                  <p className="settings-description">配置您的模型和 API 设置</p>
+                </div>
+                <button onClick={handleAddModel} className="settings-add-btn">
+                  <Plus className="w-4 h-4" />
+                  添加
+                </button>
               </div>
 
               <div className="settings-content">
-                <div className="settings-section">
-                  <div className="section-header">
-                    <div className="section-icon">
-                      <Brain className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2>文本模型设置</h2>
-                      <p className="section-description">配置用于文本生成的 AI 模型</p>
-                    </div>
+                {modelConfigs.length === 0 ? (
+                  <div className="empty-models-state">
+                    <Brain className="empty-icon" />
+                    <p>暂无模型配置</p>
+                    <p className="text-sm text-gray-400">点击右上角"添加"按钮来配置您的模型</p>
                   </div>
-
-                  <div className="config-block">
-                    <div className="config-toggle">
-                      <label className="toggle-label">
-                        <input
-                          type="checkbox"
-                          checked={textModel.enabled}
-                          onChange={(e) => handleModelChange(setTextModel, 'enabled', e.target.checked)}
-                          className="toggle-input"
-                        />
-                        <span className="toggle-slider"></span>
-                        <span className="toggle-text">启用文本模型</span>
-                      </label>
-                    </div>
-
-                    {textModel.enabled && (
-                      <div className="config-fields">
-                        <div className="field-group">
-                          <label>模型名称</label>
-                          <input
-                            type="text"
-                            value={textModel.modelName}
-                            onChange={(e) => handleModelChange(setTextModel, 'modelName', e.target.value)}
-                            className="config-input"
-                            placeholder="例如：gpt-4"
-                            autoComplete="off"
-                          />
-                        </div>
-                        <div className="field-group">
-                          <label>API URL</label>
-                          <div className="input-wrapper">
-                            <Globe className="input-icon" />
-                            <input
-                              type="text"
-                              value={textModel.apiUrl}
-                              onChange={(e) => handleModelChange(setTextModel, 'apiUrl', e.target.value)}
-                              className="config-input"
-                              placeholder="https://api.openai.com/v1"
-                              autoComplete="off"
-                            />
-                          </div>
-                        </div>
-                        <div className="field-group">
-                          <label>API Key</label>
-                          <div className="input-wrapper">
-                            <Key className="input-icon" />
-                            <input
-                              type="password"
-                              value={textModel.apiKey}
-                              onChange={(e) => handleModelChange(setTextModel, 'apiKey', e.target.value)}
-                              className="config-input"
-                              placeholder="sk-..."
-                              autoComplete="off"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="settings-section">
-                  <div className="section-header">
-                    <div className="section-icon">
-                      <Image className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2>图像模型设置</h2>
-                      <p className="section-description">配置用于图像生成的 AI 模型</p>
-                    </div>
-                  </div>
-
-                  <div className="config-block">
-                    <div className="config-toggle">
-                      <label className="toggle-label">
-                        <input
-                          type="checkbox"
-                          checked={imageModel.enabled}
-                          onChange={(e) => handleModelChange(setImageModel, 'enabled', e.target.checked)}
-                          className="toggle-input"
-                        />
-                        <span className="toggle-slider"></span>
-                        <span className="toggle-text">启用图像图像模型</span>
-                      </label>
-                    </div>
-
-                    {imageModel.enabled && (
-                      <div className="config-fields">
-                        <div className="field-group">
-                          <label>模型名称</label>
-                          <input
-                            type="text"
-                            value={imageModel.modelName}
-                            onChange={(e) => handleModelChange(setImageModel, 'modelName', e.target.value)}
-                            className="config-input"
-                            placeholder="例如：dallall-e-3"
-                            autoComplete="off"
-                          />
-                        </div>
-                        <div className="field-group">
-                          <label>API URL</label>
-                          <div className="input-wrapper">
-                            <Globe className="input-icon" />
-                            <input
-                              type="text"
-                              value={imageModel.apiUrl}
-                              onChange={(e) => handleModelChange(setImageModel, 'apiUrl', e.target.value)}
-                              className="config-input"
-                              placeholder="https://api.openai.com/v1"
-                              autoComplete="off"
-                            />
-                          </div>
-                        </div>
-                        <div className="field-group">
-                          <label>API Key</label>
-                          <div className="input-wrapper">
-                            <Key className="input-icon" />
-                            <input
-                              type="password"
-                              value={imageModel.apiKey}
-                              onChange={(e) => handleModelChange(setImageModel, 'apiKey', e.target.value)}
-                              className="config-input"
-                              placeholder="sk-..."
-                              autoComplete="off"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="settings-section">
-                  <div className="section-header">
-                    <div className="section-icon">
-                      <Video className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2>视频模型设置</h2>
-                      <p className="section-description">配置用于视频生成的 AI 模型</p>
-                    </div>
-                  </div>
-
-                  <div className="config-block">
-                    <div className="config-toggle">
-                      <label className="toggle-label">
-                        <input
-                          type="checkbox"
-                          checked={videoModel.enabled}
-                          onChange={(e) => handleModelChange(setVideoModel, 'enabled', e.target.checked)}
-                          className="toggle-input"
-                        />
-                        <span className="toggle-slider"></span>
-                        <span className="toggle-text">启用视频模型</span>
-                      </label>
-                    </div>
-
-                    {videoModel.enabled && (
-                      <div className="config-fields">
-                        <div className="field-group">
-                          <label>模型名称</label>
-                          <input
-                            type="text"
-                            value={videoModel.modelName}
-                            onChange={(e) => handleModelChange(setVideoModel, 'modelName', e.target.value)}
-                            className="config-input"
-                            placeholder="例如：sora"
-                            autoComplete="off"
-                          />
-                        </div>
-                        <div className="field-group">
-                          <label>API URL</label>
-                          <div className="input-wrapper">
-                            <Globe className="input-icon" />
-                            <input
-                              type="text"
-                              value={videoModel.apiUrl}
-                              onChange={(e) => handleModelChange(setVideoModel, 'apiUrl', e.target.value)}
-                              className="config-input"
-                              placeholder="https://api.openai.com/v1"
-                              autoComplete="off"
-                            />
-                          </div>
-                        </div>
-                        <div className="field-group">
-                          <label>API Key</label>
-                          <div className="input-wrapper">
-                            <Key className="input-icon" />
-                            <input
-                              type="password"
-                              value={videoModel.apiKey}
-                              onChange={(e) => handleModelChange(setVideoModel, 'apiKey', e.target.value)}
-                              className="config-input"
-                              placeholder="sk-..."
-                              autoComplete="off"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="settings-section">
-                  <div className="section-header">
-                    <div className="section-icon">
-                      <Mic className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2>语音模型设置</h2>
-                      <p className="section-description">配置用于语音合成的 AI 模型</p>
-                    </div>
-                  </div>
-
-                  <div className="config-block">
-                    <div className="config-toggle">
-                      <label className="toggle-label">
-                        <input
-                          type="checkbox"
-                          checked={voiceModel.enabled}
-                          onChange={(e) => handleModelChange(setVoiceModel, 'enabled', e.target.checked)}
-                          className="toggle-input"
-                        />
-                        <span className="toggle-slider"></span>
-                        <span className="toggle-text">启用语音模型</span>
-                      </label>
-                    </div>
-
-                    {voiceModel.enabled && (
-                      <div className="config-fields">
-                        <div className="field-group">
-                          <label>模型名称</label>
-                          <input
-                            type="text"
-                            value={voiceModel.modelName}
-                            onChange={(e) => handleModelChange(setVoiceModel, 'modelName', e.target.value)}
-                            className="config-input"
-                            placeholder="例如：tts-1"
-                            autoComplete="off"
-                          />
-                        </div>
-                        <div className="field-group">
-                          <label>API URL</label>
-                          <div className="input-wrapper">
-                            <Globe className="input-icon" />
-                            <input
-                              type="text"
-                              value={voiceModel.apiUrl}
-                              onChange={(e) => handleModelChange(setVoiceModel, 'apiUrl', e.target.value)}
-                              className="config-input"
-                              placeholder="https://api.openai.com/v1"
-                              autoComplete="off"
-                            />
-                          </div>
-                        </div>
-                        <div className="field-group">
-                          <label>API Key</label>
-                          <div className="input-wrapper">
-                            <Key className="input-icon" />
-                            <input
-                              type="password"
-                              value={voiceModel.apiKey}
-                              onChange={(e) => handleModelChange(setVoiceModel, 'apiKey', e.target.value)}
-                              className="config-input"
-                              placeholder="sk-..."
-                              autoComplete="off"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="settings-section">
-                  <div className="section-header">
-                    <div className="section-icon">
-                      <Cpu className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2>ComfyUI 配置</h2>
-                      <p className="section-description">配置 ComfyUI 图像生成服务</p>
-                    </div>
-                  </div>
-
-                  <div className="config-block">
-                    <div className="config-toggle">
-                      <label className="toggle-label">
-                        <input
-                          type="checkbox"
-                          checked={comfyUI.enabled}
-                          onChange={(e) => handleComfyUIChange('enabled', e.target.checked)}
-                          className="toggle-input"
-                        />
-                        <span className="toggle-slider"></span>
-                        <span className="toggle-text">启用 ComfyUI</span>
-                      </label>
-                    </div>
-
-                    {comfyUI.enabled && (
-                      <div className="config-fields">
-                        <div className="field-group">
-                          <label>ComfyUI URL</label>
-                          <div className="input-wrapper">
-                            <Globe className="input-icon" />
-                            <input
-                              type="text"
-                              value={comfyUI.url}
-                              onChange={(e) => handleComfyUIChange('url', e.target.value)}
-                              className="config-input"
-                              placeholder="http://localhost:8188"
-                              autoComplete="off"
-                            />
-                          </div>
-                        </div>
-                        <div className="field-group">
-                          <label>API Key</label>
-                          <div className="input-wrapper">
-                            <Key className="input-icon" />
-                            <input
-                              type="password"
-                              value={comfyUI.apiKey}
-                              onChange={(e) => handleComfyUIChange('apiKey', e.target.value)}
-                              className="config-input"
-                              placeholder="可选"
-                              autoComplete="off"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                ) : (
+                  modelConfigs.map((config) => (
+                    <ModelCard key={config.id} config={config} />
+                  ))
+                )}
               </div>
             </div>
           </>
