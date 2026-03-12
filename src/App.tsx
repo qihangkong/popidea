@@ -246,6 +246,7 @@ function App() {
                             onChange={(e) => handleModelChange(setTextModel, 'modelName', e.target.value)}
                             className="config-input"
                             placeholder="例如：gpt-4"
+                            autoComplete="off"
                           />
                         </div>
                         <div className="field-group">
@@ -258,6 +259,7 @@ function App() {
                               onChange={(e) => handleModelChange(setTextModel, 'apiUrl', e.target.value)}
                               className="config-input"
                               placeholder="https://api.openai.com/v1"
+                              autoComplete="off"
                             />
                           </div>
                         </div>
@@ -271,6 +273,7 @@ function App() {
                               onChange={(e) => handleModelChange(setTextModel, 'apiKey', e.target.value)}
                               className="config-input"
                               placeholder="sk-..."
+                              autoComplete="off"
                             />
                           </div>
                         </div>
@@ -313,7 +316,8 @@ function App() {
                             value={imageModel.modelName}
                             onChange={(e) => handleModelChange(setImageModel, 'modelName', e.target.value)}
                             className="config-input"
-                            placeholder="例如：dall-e-3"
+                            placeholder="例如：dallall-e-3"
+                            autoComplete="off"
                           />
                         </div>
                         <div className="field-group">
@@ -326,6 +330,7 @@ function App() {
                               onChange={(e) => handleModelChange(setImageModel, 'apiUrl', e.target.value)}
                               className="config-input"
                               placeholder="https://api.openai.com/v1"
+                              autoComplete="off"
                             />
                           </div>
                         </div>
@@ -339,6 +344,7 @@ function App() {
                               onChange={(e) => handleModelChange(setImageModel, 'apiKey', e.target.value)}
                               className="config-input"
                               placeholder="sk-..."
+                              autoComplete="off"
                             />
                           </div>
                         </div>
@@ -382,6 +388,7 @@ function App() {
                             onChange={(e) => handleModelChange(setVideoModel, 'modelName', e.target.value)}
                             className="config-input"
                             placeholder="例如：sora"
+                            autoComplete="off"
                           />
                         </div>
                         <div className="field-group">
@@ -394,6 +401,7 @@ function App() {
                               onChange={(e) => handleModelChange(setVideoModel, 'apiUrl', e.target.value)}
                               className="config-input"
                               placeholder="https://api.openai.com/v1"
+                              autoComplete="off"
                             />
                           </div>
                         </div>
@@ -407,6 +415,7 @@ function App() {
                               onChange={(e) => handleModelChange(setVideoModel, 'apiKey', e.target.value)}
                               className="config-input"
                               placeholder="sk-..."
+                              autoComplete="off"
                             />
                           </div>
                         </div>
@@ -450,6 +459,7 @@ function App() {
                             onChange={(e) => handleModelChange(setVoiceModel, 'modelName', e.target.value)}
                             className="config-input"
                             placeholder="例如：tts-1"
+                            autoComplete="off"
                           />
                         </div>
                         <div className="field-group">
@@ -462,6 +472,7 @@ function App() {
                               onChange={(e) => handleModelChange(setVoiceModel, 'apiUrl', e.target.value)}
                               className="config-input"
                               placeholder="https://api.openai.com/v1"
+                              autoComplete="off"
                             />
                           </div>
                         </div>
@@ -475,6 +486,7 @@ function App() {
                               onChange={(e) => handleModelChange(setVoiceModel, 'apiKey', e.target.value)}
                               className="config-input"
                               placeholder="sk-..."
+                              autoComplete="off"
                             />
                           </div>
                         </div>
@@ -520,6 +532,7 @@ function App() {
                               onChange={(e) => handleComfyUIChange('url', e.target.value)}
                               className="config-input"
                               placeholder="http://localhost:8188"
+                              autoComplete="off"
                             />
                           </div>
                         </div>
@@ -533,6 +546,7 @@ function App() {
                               onChange={(e) => handleComfyUIChange('apiKey', e.target.value)}
                               className="config-input"
                               placeholder="可选"
+                              autoComplete="off"
                             />
                           </div>
                         </div>
