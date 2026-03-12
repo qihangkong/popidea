@@ -1,4 +1,4 @@
-# NoIdea AI Video Studio
+# PopIdea AI Video Studio
 
 An AI-powered video creation tool that transforms novels into animated shorts. Automatically generates storyboards, characters, scenes, and assembles them into complete videos with AI voiceover.
 
@@ -13,11 +13,11 @@ An AI-powered video creation tool that transforms novels into animated shorts. A
 
 ## Architecture
 
-NoIdea combines client and server in a single executable:
+PopIdea combines client and server in a single executable:
 
 ```
 ┌─────────────────────────────────────────────┐
-│          NoIdea Application                  │
+│          PopIdea Application                  │
 ├─────────────────────────────────────────────┤
 │  Frontend: React + TypeScript               │
 │  Backend:  Rust (Tauri framework)            │
@@ -60,8 +60,8 @@ NoIdea combines client and server in a single executable:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/noidea.git
-cd noidea
+git clone https://github.com/your-username/popidea.git
+cd popidea
 
 # Install dependencies
 npm install
@@ -75,19 +75,19 @@ npm run tauri dev
 
 ### Release Binaries
 
-Download the latest release from [Releases](https://github.com/your-username/noidea/releases) page.
+Download the latest release from [Releases](https://github.com/your-username/popidea/releases) page.
 
 ## Usage
 
 ### Desktop Mode
-1. Launch the NoIdea executable
+1. Launch the PopIdea executable
 2. Create a new project or open an existing one
 3. Import your novel text
 4. Configure AI provider settings
 5. Generate storyboards and videos
 
 ### Web Access Mode
-1. Start the NoIdea application
+1. Start the PopIdea application
 2. Enable web server in settings
 3. Access via browser at `http://localhost:PORT`
 4. Share the URL with other devices on the same network
@@ -97,7 +97,7 @@ Download the latest release from [Releases](https://github.com/your-username/noi
 ### Project Structure
 
 ```
-noidea/
+popidea/
 ├── src-tauri/           # Rust backend
 │   ├── src/
 │   │   ├── main.rs      # Application entry point
@@ -148,12 +148,12 @@ npm run tauri build
 ## Configuration
 
 ### Database
-- Location: `<app-data>/noidea/database.sqlite`
+- Location: `<app-data>/popidea/database.sqlite`
 - Automatic migrations on startup
 - Backup before schema changes
 
 ### Storage
-- Location: `<app-data>/noidea/storage/`
+- Location: `<app-data>/popidea/storage/`
 - S3-compatible API
 - Automatic cleanup of unused assets
 
@@ -211,7 +211,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ## Support
 
-For issues, questions, or suggestions, please open an issue on [GitHub Issues](https://github.com/your-username/noidea/issues).
+For issues, questions, or suggestions, please open an issue on [GitHub Issues](https://github.com/your-username/popidea/issues).
 
 ## Acknowledgments
 
