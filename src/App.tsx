@@ -1,12 +1,12 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Layers, Folder, Settings as SettingsIcon, Lightbulb, Brain, Key, Globe, Cpu, Plus, MoreHorizontal, Users, X, Image} from 'lucide-react'
 import './App.css'
 
 interface ModelConfigCard {
   id: string
   name: string
-  platform: 'zhipu' | 'volcengine' | 'comfyui' | 'custom' | 'openai' | 'stability' | 'midjourney'
-  apiUrl?: string
+  modelName: string
+  apiUrl: string
   apiKey: string
 }
 
@@ -21,6 +21,93 @@ interface Project {
 
 type SettingsTab = 'llm' | 'image'
 
+interface ModelCardProps {
+  config: ModelConfigCard
+  type: SettingsTab
+  onConfigChange: (id: string, field: keyof ModelConfigCard, value: string | boolean, type: SettingsTab) => void
+  onDelete: (id: string, type: SettingsTab) => void
+}
+
+const ModelCard = ({ config, type, onConfigChange, onDelete }: ModelCardProps) => {
+  const Icon = type === 'llm' ? Brain : Image
+
+  return (
+    <div className="settings-section">
+      <div className="section-header">
+        <div className="section-icon">
+          <Icon className="w-5 h-5" />
+        </div>
+        <div className="flex-1">
+          <input
+            type="text"
+            value={config.name}
+            onChange={(e) => onConfigChange(config.id, 'name', e.target.value, type)}
+            className="model-name-input"
+            placeholder={type === 'llm' ? '大语言模型配置' : '图片生成模型配置'}
+            autoComplete="off"
+          />
+        </div>
+        <button
+          onClick={() => onDelete(config.id, type)}
+          className="delete-model-btn"
+          type="button"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="config-block">
+        <div className="config-fields">
+          <div className="field-group">
+            <label>API URL</label>
+            <div className="input-wrapper">
+              <Globe className="input-icon" />
+              <input
+                type="text"
+                value={config.apiUrl}
+                onChange={(e) => onConfigChange(config.id, 'apiUrl', e.target.value, type)}
+                className="config-input"
+                placeholder="https://api.example.com/v1"
+                autoComplete="off"
+              />
+            </div>
+          </div>
+
+          <div className="field-group">
+            <label>API Key</label>
+            <div className="input-wrapper">
+              <Key className="input-icon" />
+              <input
+                type="password"
+                value={config.apiKey}
+                onChange={(e) => onConfigChange(config.id, 'apiKey', e.target.value, type)}
+                className="config-input"
+                placeholder="输入您的 API Key"
+                autoComplete="off"
+              />
+            </div>
+          </div>
+
+          <div className="field-group">
+            <label>Model Name</label>
+            <div className="input-wrapper">
+              <Cpu className="input-icon" />
+              <input
+                type="text"
+                value={config.modelName}
+                onChange={(e) => onConfigChange(config.id, 'modelName', e.target.value, type)}
+                className="config-input"
+                placeholder="gpt-4o"
+                autoComplete="off"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function App() {
   const [activeItem, setActiveItem] = useState('资产')
   const [activeAssetType, setActiveAssetType] = useState('角色')
@@ -33,9 +120,9 @@ function App() {
   const handleAddLLMModel = () => {
     const config: ModelConfigCard = {
       id: Date.now().toString(),
-      name: '质谱配置',
-      platform: 'zhipu',
-      apiUrl: undefined,
+      name: '大语言模型配置',
+      modelName: '',
+      apiUrl: '',
       apiKey: ''
     }
     setLlmConfigs([...llmConfigs, config])
@@ -44,9 +131,9 @@ function App() {
   const handleAddImageModel = () => {
     const config: ModelConfigCard = {
       id: Date.now().toString(),
-      name: 'ComfyUI配置',
-      platform: 'comfyui',
-      apiUrl: 'http://127.0.0.1:8188',
+      name: '图片生成模型配置',
+      modelName: '',
+      apiUrl: '',
       apiKey: ''
     }
     setImageConfigs([...imageConfigs, config])
@@ -64,26 +151,26 @@ function App() {
     custom: { name: '自定义', defaultUrl: '', icon: SettingsIcon, color: '#10b981' }
   }
 
-  const handleDeleteModel = (id: string, type: SettingsTab) => {
+  const handleDeleteModel = useCallback((id: string, type: SettingsTab) => {
     if (type === 'llm') {
-      setLlmConfigs(llmConfigs.filter(config => config.id !== id))
+      setLlmConfigs(prev => prev.filter(config => config.id !== id))
     } else {
-      setImageConfigs(imageConfigs.filter(config => config.id !== id))
+      setImageConfigs(prev => prev.filter(config => config.id !== id))
     }
-  }
+  }, [])
 
-  const handleModelConfigChange = (id: string, field: keyof ModelConfigCard, value: string | boolean, type: SettingsTab) => {
+  const handleModelConfigChange = useCallback((id: string, field: keyof ModelConfigCard, value: string | boolean, type: SettingsTab) => {
     const updater = (configs: ModelConfigCard[]) =>
       configs.map(config =>
         config.id === id ? { ...config, [field]: value } : config
       )
 
     if (type === 'llm') {
-      setLlmConfigs(updater(llmConfigs))
+      setLlmConfigs(updater)
     } else {
-      setImageConfigs(updater(imageConfigs))
+      setImageConfigs(updater)
     }
-  }
+  }, [])
 
   const myProjects: Project[] = [
     {
@@ -121,101 +208,6 @@ function App() {
       </div>
     </div>
   )
-
-  const ModelCard = ({ config, type }: { config: ModelConfigCard, type: SettingsTab }) => {
-    const platformInfo = platformConfig[config.platform]
-    const Icon = platformInfo.icon
-    const showApiUrl = config.platform === 'comfyui' || config.platform === 'custom' || config.platform === 'stability'
-
-    return (
-      <div className="settings-section">
-        <div className="section-header">
-          <div className="section-icon" style={{ color: platformInfo.color }}>
-            <Icon className="w-5 h-5" />
-          </div>
-          <div className="flex-1">
-            <input
-              type="text"
-              value={config.name}
-              onChange={(e) => handleModelConfigChange(config.id, 'name', e.target.value, type)}
-              className="model-name-input"
-              placeholder={platformInfo.name + '配置'}
-              autoComplete="off"
-            />
-            <p className="section-description">{platformInfo.name}</p>
-          </div>
-          <button
-            onClick={() => handleDeleteModel(config.id, type)}
-            className="delete-model-btn"
-            type="button"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="config-block">
-          <div className="config-fields">
-            <div className="field-group">
-              <label>平台</label>
-              <select
-                value={config.platform}
-                onChange={(e) => handleModelConfigChange(config.id, 'platform', e.target.value as any, type)}
-                className="config-input"
-              >
-                {type === 'llm' ? (
-                  <>
-                    <option value="zhipu">质谱</option>
-                    <option value="volcengine">火山引擎</option>
-                    <option value="openai">OpenAI</option>
-                    <option value="custom">自定义</option>
-                  </>
-                ) : (
-                  <>
-                    <option value="comfyui">ComfyUI</option>
-                    <option value="stability">Stability AI</option>
-                    <option value="midjourney">Midjourney</option>
-                    <option value="custom">自定义</option>
-                  </>
-                )}
-              </select>
-            </div>
-
-            {showApiUrl && (
-              <div className="field-group">
-                <label>API URL</label>
-                <div className="input-wrapper">
-                  <Globe className="input-icon" />
-                  <input
-                    type="text"
-                    value={config.apiUrl || ''}
-                    onChange={(e) => handleModelConfigChange(config.id, 'apiUrl', e.target.value, type)}
-                    className="config-input"
-                    placeholder={config.platform === 'comfyui' ? 'http://127.0.0.1:8188' : config.platform === 'stability' ? 'https://api.stability.ai/v1' : 'https://api.example.com/v1'}
-                    autoComplete="off"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="field-group">
-              <label>API Key</label>
-              <div className="input-wrapper">
-                <Key className="input-icon" />
-                <input
-                  type="password"
-                  value={config.apiKey}
-                  onChange={(e) => handleModelConfigChange(config.id, 'apiKey', e.target.value, type)}
-                  className="config-input"
-                  placeholder="输入您的 API Key"
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="app">
@@ -347,7 +339,7 @@ function App() {
                       </div>
                     ) : (
                       llmConfigs.map((config) => (
-                        <ModelCard key={config.id} config={config} type="llm" />
+                        <ModelCard key={config.id} config={config} type="llm" onConfigChange={handleModelConfigChange} onDelete={handleDeleteModel} />
                       ))
                     )}
                     <button onClick={handleAddLLMModel} className="settings-add-btn">
@@ -365,7 +357,7 @@ function App() {
                       </div>
                     ) : (
                       imageConfigs.map((config) => (
-                        <ModelCard key={config.id} config={config} type="image" />
+                        <ModelCard key={config.id} config={config} type="image" onConfigChange={handleModelConfigChange} onDelete={handleDeleteModel} />
                       ))
                     )}
                     <button onClick={handleAddImageModel} className="settings-add-btn">
