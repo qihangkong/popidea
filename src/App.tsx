@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Layers, Folder, Settings as SettingsIcon, Lightbulb, Brain, Image, Video, Mic, Key, Globe, Cpu, Plus, MoreHorizontal, Users, X } from 'lucide-react'
+import { Layers, Folder, Settings as SettingsIcon, Lightbulb, Brain, Image, Video, Mic, Key, Globe, Cpu, Plus, MoreHorizontal, Users, X, Check } from 'lucide-react'
 import './App.css'
 
 interface ModelConfigCard {
@@ -26,6 +26,14 @@ function App() {
 
   const [modelConfigs, setModelConfigs] = useState<ModelConfigCard[]>([])
 
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [newConfig, setNewConfig] = useState({
+    name: '',
+    platform: 'zhipu' as 'zhipu' | 'volcengine' | 'comfyui' | 'custom',
+    apiUrl: '',
+    apiKey: ''
+  })
+
   const assetTypes = ['角色', '场景', '道具', '分镜头', '分镜视频', '成片']
 
   const platformConfig = {
@@ -36,13 +44,29 @@ function App() {
   }
 
   const handleAddModel = () => {
-    const newConfig: ModelConfigCard = {
-      id: Date.now().toString(),
+    setShowAddModal(true)
+  }
+
+  const handleCloseModal = () => {
+    setShowAddModal(false)
+    setNewConfig({
       name: '',
       platform: 'zhipu',
+      apiUrl: '',
       apiKey: ''
+    })
+  }
+
+  const handleConfirmAdd = () => {
+    const config: ModelConfigCard = {
+      id: Date.now().toString(),
+      name: newConfig.name || platformConfig[newConfig.platform].name + '配置',
+      platform: newConfig.platform,
+      apiUrl: newConfig.apiUrl || undefined,
+      apiKey: newConfig.apiKey
     }
-    setModelConfigs([...modelConfigs, newConfig])
+    setModelConfigs([...modelConfigs, config])
+    handleCloseModal()
   }
 
   const handleDeleteModel = (id: string) => {
@@ -299,6 +323,88 @@ function App() {
           </>
         ) : null}
       </main>
+
+      {/* 添加模型配置弹窗 */}
+      {showAddModal && (
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>添加 API 配置</h2>
+              <button onClick={handleCloseModal} className="modal-close-btn">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="field-group">
+                <label>平台</label>
+                <select
+                  value={newConfig.platform}
+                  onChange={(e) => setNewConfig({ ...newConfig, platform: e.target.value as any })}
+                  className="config-input"
+                >
+                  <option value="zhipu">质谱</option>
+                  <option value="volcengine">火山引擎</option>
+                  <option value="comfyui">ComfyUI</option>
+                  <option value="custom">自定义</option>
+                </select>
+              </div>
+
+              <div className="field-group">
+                <label>配置名称</label>
+                <input
+                  type="text"
+                  value={newConfig.name}
+                  onChange={(e) => setNewConfig({ ...newConfig, name: e.target.value })}
+                  className="config-input"
+                  placeholder={platformConfig[newConfig.platform].name + '配置'}
+                  autoComplete="off"
+                />
+              </div>
+
+              {(newConfig.platform === 'comfyui' || newConfig.platform === 'custom') && (
+                <div className="field-group">
+                  <label>API URL</label>
+                  <div className="input-wrapper">
+                    <Globe className="input-icon" />
+                    <input
+                      type="text"
+                      value={newConfig.apiUrl}
+                      onChange={(e) => setNewConfig({ ...newConfig, apiUrl: e.target.value })}
+                      className="config-input"
+                      placeholder={newConfig.platform === 'comfyui' ? 'http://127.0.0.1:8188' : 'https://api.example.com/v1'}
+                      autoComplete="off"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="field-group">
+                <label>API Key</label>
+                <div className="input-wrapper">
+                  <Key className="input-icon" />
+                  <input
+                    type="password"
+                    value={newConfig.apiKey}
+                    onChange={(e) => setNewConfig({ ...newConfig, apiKey: e.target.value })}
+                    className="config-input"
+                    placeholder="输入您的 API Key"
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button onClick={handleCloseModal} className="modal-btn modal-btn-cancel">
+                取消
+              </button>
+              <button onClick={handleConfirmAdd} className="modal-btn modal-btn-confirm">
+                <Check className="w-4 h-4" />
+                确定
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
