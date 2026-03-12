@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { Layers, Folder, Settings as SettingsIcon, Lightbulb, Brain, Key, Globe, Cpu, Plus, MoreHorizontal, Users, X} from 'lucide-react'
+import { Layers, Folder, Settings as SettingsIcon, Lightbulb, Brain, Key, Globe, Cpu, Plus, MoreHorizontal, Users, X, Image} from 'lucide-react'
 import './App.css'
 
 interface ModelConfigCard {
   id: string
   name: string
-  platform: 'zhipu' | 'volcengine' | 'comfyui' | 'custom'
+  platform: 'zhipu' | 'volcengine' | 'comfyui' | 'custom' | 'openai' | 'stability' | 'midjourney'
   apiUrl?: string
   apiKey: string
 }
@@ -19,14 +19,18 @@ interface Project {
   updatedAt: string
 }
 
+type SettingsTab = 'llm' | 'image'
+
 function App() {
   const [activeItem, setActiveItem] = useState('资产')
   const [activeAssetType, setActiveAssetType] = useState('角色')
   const [projectTab, setProjectTab] = useState('myProjects')
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>('llm')
 
-  const [modelConfigs, setModelConfigs] = useState<ModelConfigCard[]>([])
+  const [llmConfigs, setLlmConfigs] = useState<ModelConfigCard[]>([])
+  const [imageConfigs, setImageConfigs] = useState<ModelConfigCard[]>([])
 
-  const handleAddModel = () => {
+  const handleAddLLMModel = () => {
     const config: ModelConfigCard = {
       id: Date.now().toString(),
       name: '质谱配置',
@@ -34,7 +38,18 @@ function App() {
       apiUrl: undefined,
       apiKey: ''
     }
-    setModelConfigs([...modelConfigs, config])
+    setLlmConfigs([...llmConfigs, config])
+  }
+
+  const handleAddImageModel = () => {
+    const config: ModelConfigCard = {
+      id: Date.now().toString(),
+      name: 'ComfyUI配置',
+      platform: 'comfyui',
+      apiUrl: 'http://127.0.0.1:8188',
+      apiKey: ''
+    }
+    setImageConfigs([...imageConfigs, config])
   }
 
   const assetTypes = ['角色', '场景', '道具', '分镜头', '分镜视频', '成片']
@@ -42,18 +57,32 @@ function App() {
   const platformConfig = {
     zhipu: { name: '质谱', defaultUrl: 'https://open.bigmodel.cn/api/paas/v4', icon: Brain, color: '#667eea' },
     volcengine: { name: '火山引擎', defaultUrl: 'https://ark.cn-beijing.volces.com/api/v3', icon: Globe, color: '#f59e0b' },
+    openai: { name: 'OpenAI', defaultUrl: 'https://api.openai.com/v1', icon: Brain, color: '#10a37f' },
     comfyui: { name: 'ComfyUI', defaultUrl: 'http://127.0.0.1:8188', icon: Cpu, color: '#8b5cf6' },
+    stability: { name: 'Stability AI', defaultUrl: 'https://api.stability.ai/v1', icon: Image, color: '#ff6b6b' },
+    midjourney: { name: 'Midjourney', defaultUrl: '', icon: Image, color: '#ec4899' },
     custom: { name: '自定义', defaultUrl: '', icon: SettingsIcon, color: '#10b981' }
   }
 
-  const handleDeleteModel = (id: string) => {
-    setModelConfigs(modelConfigs.filter(config => config.id !== id))
+  const handleDeleteModel = (id: string, type: SettingsTab) => {
+    if (type === 'llm') {
+      setLlmConfigs(llmConfigs.filter(config => config.id !== id))
+    } else {
+      setImageConfigs(imageConfigs.filter(config => config.id !== id))
+    }
   }
 
-  const handleModelConfigChange = (id: string, field: keyof ModelConfigCard, value: string | boolean) => {
-    setModelConfigs(modelConfigs.map(config =>
-      config.id === id ? { ...config, [field]: value } : config
-    ))
+  const handleModelConfigChange = (id: string, field: keyof ModelConfigCard, value: string | boolean, type: SettingsTab) => {
+    const updater = (configs: ModelConfigCard[]) =>
+      configs.map(config =>
+        config.id === id ? { ...config, [field]: value } : config
+      )
+
+    if (type === 'llm') {
+      setLlmConfigs(updater(llmConfigs))
+    } else {
+      setImageConfigs(updater(imageConfigs))
+    }
   }
 
   const myProjects: Project[] = [
@@ -93,10 +122,10 @@ function App() {
     </div>
   )
 
-  const ModelCard = ({ config }: { config: ModelConfigCard }) => {
+  const ModelCard = ({ config, type }: { config: ModelConfigCard, type: SettingsTab }) => {
     const platformInfo = platformConfig[config.platform]
     const Icon = platformInfo.icon
-    const showApiUrl = config.platform === 'comfyui' || config.platform === 'custom'
+    const showApiUrl = config.platform === 'comfyui' || config.platform === 'custom' || config.platform === 'stability'
 
     return (
       <div className="settings-section">
@@ -108,7 +137,7 @@ function App() {
             <input
               type="text"
               value={config.name}
-              onChange={(e) => handleModelConfigChange(config.id, 'name', e.target.value)}
+              onChange={(e) => handleModelConfigChange(config.id, 'name', e.target.value, type)}
               className="model-name-input"
               placeholder={platformInfo.name + '配置'}
               autoComplete="off"
@@ -116,7 +145,7 @@ function App() {
             <p className="section-description">{platformInfo.name}</p>
           </div>
           <button
-            onClick={() => handleDeleteModel(config.id)}
+            onClick={() => handleDeleteModel(config.id, type)}
             className="delete-model-btn"
             type="button"
           >
@@ -130,13 +159,24 @@ function App() {
               <label>平台</label>
               <select
                 value={config.platform}
-                onChange={(e) => handleModelConfigChange(config.id, 'platform', e.target.value as any)}
+                onChange={(e) => handleModelConfigChange(config.id, 'platform', e.target.value as any, type)}
                 className="config-input"
               >
-                <option value="zhipu">质谱</option>
-                <option value="volcengine">火山引擎</option>
-                <option value="comfyui">ComfyUI</option>
-                <option value="custom">自定义</option>
+                {type === 'llm' ? (
+                  <>
+                    <option value="zhipu">质谱</option>
+                    <option value="volcengine">火山引擎</option>
+                    <option value="openai">OpenAI</option>
+                    <option value="custom">自定义</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="comfyui">ComfyUI</option>
+                    <option value="stability">Stability AI</option>
+                    <option value="midjourney">Midjourney</option>
+                    <option value="custom">自定义</option>
+                  </>
+                )}
               </select>
             </div>
 
@@ -148,9 +188,9 @@ function App() {
                   <input
                     type="text"
                     value={config.apiUrl || ''}
-                    onChange={(e) => handleModelConfigChange(config.id, 'apiUrl', e.target.value)}
+                    onChange={(e) => handleModelConfigChange(config.id, 'apiUrl', e.target.value, type)}
                     className="config-input"
-                    placeholder={config.platform === 'comfyui' ? 'http://127.0.0.1:8188' : 'https://api.example.com/v1'}
+                    placeholder={config.platform === 'comfyui' ? 'http://127.0.0.1:8188' : config.platform === 'stability' ? 'https://api.stability.ai/v1' : 'https://api.example.com/v1'}
                     autoComplete="off"
                   />
                 </div>
@@ -164,7 +204,7 @@ function App() {
                 <input
                   type="password"
                   value={config.apiKey}
-                  onChange={(e) => handleModelConfigChange(config.id, 'apiKey', e.target.value)}
+                  onChange={(e) => handleModelConfigChange(config.id, 'apiKey', e.target.value, type)}
                   className="config-input"
                   placeholder="输入您的 API Key"
                   autoComplete="off"
@@ -175,7 +215,7 @@ function App() {
         </div>
       </div>
     )
-    }
+  }
 
   return (
     <div className="app">
@@ -236,39 +276,39 @@ function App() {
           </>
         ) : activeItem === '项目' ? (
           <>
-            <div className="project-page">
-              <div className="project-header">
-                <div className="project-tabs">
-                  <button
-                    className={`project-tab ${projectTab === 'myProjects' ? 'active' : ''}`}
-                    onClick={() => setProjectTab('myProjects')}
-                  >
-                    我的项目
-                  </button>
-                  <button
-                    className={`project-tab ${projectTab === 'participated' ? 'active' : ''}`}
-                    onClick={() => setProjectTab('participated')}
-                  >
-                    我参与的项目
-                  </button>
-                </div>
-                <button className="create-project-btn">
-                  <Plus className="w-4 h-4" />
-                  创建项目
+          <div className="project-page">
+            <div className="project-header">
+              <div className="project-tabs">
+                <button
+                  className={`project-tab ${projectTab === 'myProjects' ? 'active' : ''}`}
+                  onClick={() => setProjectTab('myProjects')}
+                >
+                  我的项目
+                </button>
+                <button
+                  className={`project-tab ${projectTab === 'participated' ? 'active' : ''}`}
+                  onClick={() => setProjectTab('participated')}
+                >
+                  我参与的项目
                 </button>
               </div>
-              <div className="project-grid video-grid py-2">
-                {(projectTab === 'myProjects' ? myProjects : participatedProjects).map((project) => (
-                  <ProjectCard key={project.id} project={project} />
-                ))}
-                {(projectTab === 'myProjects' ? myProjects : participatedProjects).length === 0 && (
-                  <div className="empty-state">
-                    <p className="text-gray-400 text-sm">暂无项目</p>
-                  </div>
-                )}
-              </div>
+              <button className="create-project-btn">
+                <Plus className="w-4 h-4" />
+                创建项目
+              </button>
             </div>
-          </>
+            <div className="project-grid video-grid py-2">
+              {(projectTab === 'myProjects' ? myProjects : participatedProjects).map((project) => (
+                <ProjectCard key={project.id} project={project} />
+              ))}
+              {(projectTab === 'myProjects' ? myProjects : participatedProjects).length === 0 && (
+                <div className="empty-state">
+                  <p className="text-gray-400 text-sm">暂无项目</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
         ) : activeItem === '设置' ? (
           <>
             <div className="settings-page">
@@ -277,23 +317,62 @@ function App() {
                   <h1>设置</h1>
                   <p className="settings-description">配置您的模型和 API 设置</p>
                 </div>
-                <button onClick={handleAddModel} className="settings-add-btn">
-                  <Plus className="w-4 h-4" />
-                  添加
+              </div>
+
+              <div className="settings-tabs">
+                <button
+                  className={`settings-tab ${settingsTab === 'llm' ? 'active' : ''}`}
+                  onClick={() => setSettingsTab('llm')}
+                >
+                  <Brain className="w-4 h-4" />
+                  大语言模型设置
+                </button>
+                <button
+                  className={`settings-tab ${settingsTab === 'image' ? 'active' : ''}`}
+                  onClick={() => setSettingsTab('image')}
+                >
+                  <Image className="w-4 h-4" />
+                  图片生成设置
                 </button>
               </div>
 
               <div className="settings-content">
-                {modelConfigs.length === 0 ? (
-                  <div className="empty-models-state">
-                    <Brain className="empty-icon" />
-                    <p>暂无模型配置</p>
-                    <p className="text-sm text-gray-400">点击右上角"添加"按钮来配置您的模型</p>
-                  </div>
+                {settingsTab === 'llm' ? (
+                  <>
+                    {llmConfigs.length === 0 ? (
+                      <div className="empty-models-state">
+                        <Brain className="empty-icon" />
+                        <p>暂无大语言模型配置</p>
+                        <p className="text-sm text-gray-400">点击"添加大语言模型"按钮来配置您的模型</p>
+                      </div>
+                    ) : (
+                      llmConfigs.map((config) => (
+                        <ModelCard key={config.id} config={config} type="llm" />
+                      ))
+                    )}
+                    <button onClick={handleAddLLMModel} className="settings-add-btn">
+                      <Plus className="w-4 h-4" />
+                      添加大语言模型
+                    </button>
+                  </>
                 ) : (
-                  modelConfigs.map((config) => (
-                    <ModelCard key={config.id} config={config} />
-                  ))
+                  <>
+                    {imageConfigs.length === 0 ? (
+                      <div className="empty-models-state">
+                        <Image className="empty-icon" />
+                        <p>暂无图片生成模型配置</p>
+                        <p className="text-sm text-gray-400">点击"添加图片生成模型"按钮来配置您的模型</p>
+                      </div>
+                    ) : (
+                      imageConfigs.map((config) => (
+                        <ModelCard key={config.id} config={config} type="image" />
+                      ))
+                    )}
+                    <button onClick={handleAddImageModel} className="settings-add-btn">
+                      <Plus className="w-4 h-4" />
+                      添加图片生成模型
+                    </button>
+                  </>
                 )}
               </div>
             </div>
